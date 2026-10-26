@@ -13,7 +13,7 @@ import re
 import time
 from typing import Dict, Iterable, List, Optional, Tuple
 
-from sentiment_llm.schema import FeedStatus, Stance
+from fomo_meter.schema import FeedStatus, Stance
 
 
 class AntiHallucinationVerifier:

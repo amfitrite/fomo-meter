@@ -1,7 +1,7 @@
 """
-SLM-1: the in-house neural sentiment model.
+Sentiment SLM: the in-house neural sentiment model.
 
-This module loads a small locally-trained network from models/slm1.npz. It is
+This module loads a small locally-trained network from models/sentiment_slm.npz. It is
 NOT a wrapper around Ollama, OpenAI, HuggingFace, or any hosted LLM. The model
 is trained by tools/train_slm.py on the project's own curated dataset.
 
@@ -22,15 +22,15 @@ from typing import Dict, List, Optional
 
 import numpy as np
 
-from sentiment_llm.config import (
+from fomo_meter.config import (
     SLM_ARCHITECTURE,
     SLM_FEATURE_DIM,
     SLM_META,
     SLM_VERSION,
     SLM_WEIGHTS,
 )
-from sentiment_llm.schema import ModelStatus, Stance
-from sentiment_llm.slm_features import featurize
+from fomo_meter.schema import ModelStatus, Stance
+from fomo_meter.slm_features import featurize
 
 
 class SLMUnavailable(RuntimeError):
@@ -47,7 +47,7 @@ class SLMPrediction:
     latency_ms: int = 0
 
 
-class SLM1:
+class SentimentSLM:
     LABELS = ("BUY", "SELL", "WAIT")
 
     def __init__(
@@ -75,7 +75,7 @@ class SLM1:
             if not self.weights_path.exists():
                 self.error = (
                     f"Bobot model tidak ditemukan: {self.weights_path.name}. "
-                    "Jalankan python tools/train_slm.py untuk membangun SLM-1."
+                    "Jalankan python tools/train_slm.py untuk membangun Sentiment SLM."
                 )
                 self.available = False
                 return False
@@ -114,7 +114,7 @@ class SLM1:
             return True
         except Exception as exc:
             self.available = False
-            self.error = f"Gagal memuat SLM-1: {type(exc).__name__}: {exc}"
+            self.error = f"Gagal memuat Sentiment SLM: {type(exc).__name__}: {exc}"
             self._params = {}
             return False
 
@@ -135,7 +135,7 @@ class SLM1:
     # -------------------------------------------------------------- predict
     def predict(self, text: str) -> SLMPrediction:
         if not self.available:
-            raise SLMUnavailable(self.error or "SLM-1 tidak tersedia.")
+            raise SLMUnavailable(self.error or "Sentiment SLM tidak tersedia.")
         if not text or not text.strip():
             return SLMPrediction(
                 stance=Stance.WAIT,

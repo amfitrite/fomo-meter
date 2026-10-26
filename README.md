@@ -2,9 +2,9 @@
 
 **Crowd Psychology Radar** — aplikasi desktop untuk membaca sentimen publik pada Bitcoin, Ethereum, Gold, S&P 500, dan EUR/USD.
 
-Aplikasi ini menggabungkan sumber publik nyata, gate anti-halusinasi, classifier slang trading Indonesia/Inggris, dan **SLM-1**, model saraf kecil yang dilatih sepenuhnya di mesin ini.
+Aplikasi ini menggabungkan sumber publik nyata, gate anti-halusinasi, classifier slang trading Indonesia/Inggris, dan **Sentiment SLM**, model saraf kecil yang dilatih sepenuhnya di mesin ini.
 
-> **Penting:** FOMO Meter adalah nama produk. SLM-1 bukan model generatif raksasa dan bukan wrapper Ollama, OpenAI, HuggingFace, atau API model pihak ketiga. Arsitekturnya adalah hashed n-gram → MLP 128 → 64 → softmax 3 kelas. Brief yang dihasilkan adalah ringkasan deterministik dari output model dan bukti post, bukan teks bebas yang mengarang fakta.
+> **Penting:** FOMO Meter adalah nama produk. Sentiment SLM bukan model generatif raksasa dan bukan wrapper Ollama, OpenAI, HuggingFace, atau API model pihak ketiga. Arsitekturnya adalah hashed n-gram → MLP 128 → 64 → softmax 3 kelas. Brief yang dihasilkan adalah ringkasan deterministik dari output model dan bukti post, bukan teks bebas yang mengarang fakta.
 
 ![Dashboard FOMO Meter](screenshots/dashboard.png)
 
@@ -20,7 +20,7 @@ Aplikasi ini menggabungkan sumber publik nyata, gate anti-halusinasi, classifier
 | StockTwits publik | Live, tetapi dapat diblokir Cloudflare (HTTP 403) secara intermiten |
 | Reddit publik | HTTP 403 dari jaringan ini; ditampilkan jujur sebagai ERROR |
 | X / Twitter | Membutuhkan `X_BEARER_TOKEN`; tanpa token ditampilkan `NEEDS_AUTH` |
-| SLM-1 neural model | Selesai, bobot lokal tersedia |
+| Sentiment SLM neural model | Selesai, bobot lokal tersedia |
 | Shortcut desktop **FOMO Meter** | Terpasang di Desktop Windows |
 | Tests | 23 test lulus |
 | Ollama / model hosted | Tidak digunakan sama sekali |
@@ -32,7 +32,7 @@ Aplikasi ini menggabungkan sumber publik nyata, gate anti-halusinasi, classifier
 - **Konflik tidak dirata-ratakan.** Jika sumber BUY dan SELL bertemu, radar menampilkan `CONFLICT`, bukan angka consensus palsu.
 - **Source matrix** dengan status `LIVE`, `PARTIAL`, `NO_DATA`, `NEEDS_AUTH`, atau `ERROR`, plus kutipan bukti dan URL asli.
 - **Analyzer teks** untuk post, headline, atau chat trader. Mendukung slang Indonesia seperti *serok*, *boncos*, *nyangkut*, *cut loss*, *wait and see*, serta slang Inggris.
-- **SLM Brief** dari post live yang lolos gate, dengan probabilitas BUY/SELL/WAIT, driver leksikon, bukti verbatim, dan disclaimer.
+- **Brief Sentiment SLM** dari post live yang lolos gate, dengan probabilitas BUY/SELL/WAIT, driver leksikon, bukti verbatim, dan disclaimer.
 - **Market pulse** sebagai konteks: harga, perubahan, dan Fear & Greed. Konteks pasar tidak mengubah arah sentimen.
 - **Riwayat audit** analisis teks, brief, dan teks yang ditolak gate.
 - **Jendela frameless premium** dengan tombol minimize, maximize/restore, close, drag native, dan resize dari sudut kanan bawah.
@@ -46,7 +46,7 @@ Aplikasi ini menggabungkan sumber publik nyata, gate anti-halusinasi, classifier
 |---|---|
 | ![Radar](screenshots/dashboard.png) | ![Source matrix](screenshots/dashboard_bottom.png) |
 
-| Analyzer | SLM Brief |
+| Analyzer | Brief Sentiment SLM |
 |---|---|
 | ![Analyzer](screenshots/analyzer.png) | ![Brief](screenshots/brief.png) |
 
@@ -58,11 +58,11 @@ Jendela desktop frameless dengan kontrol kustom dan FPS meter nyata:
 
 ### Desktop
 
-> Folder proyek masih bernama `D:\Sentiment LLM`; nama aplikasi dan shortcut
-> yang terlihat oleh pengguna adalah **FOMO Meter**.
+> Folder proyek: `D:\FOMO Meter`. Seluruh branding aplikasi, jendela, dan
+> shortcut desktop menggunakan nama **FOMO Meter**.
 
 ```powershell
-cd "D:\Sentiment LLM"
+cd "D:\FOMO Meter"
 python run.py
 ```
 
@@ -90,14 +90,14 @@ Semua perintah scan/brief memakai data live. Jika sumber gagal, perintah menampi
 ## Instalasi dari nol
 
 ```powershell
-cd "D:\Sentiment LLM"
+cd "D:\FOMO Meter"
 python -m pip install -r requirements.txt
 python tools/make_icon.py
 python tools/install_shortcut.py
 python run.py
 ```
 
-Opsional, latih ulang SLM-1:
+Opsional, latih ulang Sentiment SLM:
 
 ```powershell
 python tools/build_slm_dataset.py
@@ -111,7 +111,7 @@ Dataset dibuat dari templat bilingual dan kasus sulit kurasi. `data/golden_set.j
 ```text
 StockTwits ─┐
 Google News ─┤
-Yahoo RSS   ─┼─> adapter + cache ─> relevance gate ─> classifier/SLM-1
+Yahoo RSS   ─┼─> adapter + cache ─> relevance gate ─> classifier/Sentiment SLM
 Reddit      ─┤                                      │
 X (token)   ─┘                                      ├─> source consensus
                                                     ├─> 9 integrity gates
@@ -123,7 +123,7 @@ Python stdlib HTTP server (127.0.0.1, ephemeral port)
         └─> PySide6 + QtWebEngine desktop shell
 ```
 
-### SLM-1
+### Sentiment SLM
 
 - Features: hashed word/char n-gram, 2048 dimensi.
 - Network: 2048 → 128 ReLU → 64 ReLU → 3 softmax.
@@ -132,14 +132,14 @@ Python stdlib HTTP server (127.0.0.1, ephemeral port)
 - Dataset: 1.042 contoh kurasi (885 train / 157 validation).
 - Validation accuracy: **94.27%**; macro F1: **0.944**.
 - Golden benchmark internal: **12/12 stance**, **15/15 relevance**.
-- Bobot: `models/slm1.npz`; metadata: `models/slm1_meta.json`.
+- Bobot: `models/sentiment_slm.npz`; metadata: `models/sentiment_slm_meta.json`.
 
 Angka di atas adalah hasil benchmark kecil pada dataset kurasi, bukan jaminan performa di pasar nyata. UI menampilkan batas ini.
 
 ### Dual engine
 
 1. **Lexicon deterministik** selalu tersedia sebagai baseline/fallback.
-2. **SLM-1** dipakai jika tersedia dan keyakinannya memadai.
+2. **Sentiment SLM** dipakai jika tersedia dan keyakinannya memadai.
 3. Jika keduanya tidak sepakat dan model belum cukup yakin, hasil lexicon dipakai dan alasan fallback ditampilkan.
 4. Brief hanya memakai post yang lolos relevance gate; bukti yang dipilih adalah substring verbatim.
 
@@ -172,7 +172,7 @@ Aplikasi tidak memakai scraping yang melanggar ketentuan, tidak mengarang post, 
 ## Struktur proyek
 
 ```text
-sentiment_llm/
+fomo_meter/
   config.py              ticker, path, konstanta
   schema.py              model Pydantic
   classifier.py          lexicon deterministik
@@ -180,7 +180,7 @@ sentiment_llm/
   anti_halu_gates.py     verifikasi bukti/feed
   engine.py              orkestrasi scan, cache, history, brief
   slm_features.py        hashed n-gram
-  slm.py                 loader + inference SLM-1
+  slm.py                 loader + inference Sentiment SLM
   desktop.py             PySide6 + QtWebEngine
   web_dashboard.py       HTTP server lokal
   web/                   HTML, CSS, JS
@@ -192,7 +192,7 @@ tools/
   install_shortcut.py    shortcut Windows
   screenshot.py          QA screenshot
 data/                    dataset, golden set, blacklist, history
-models/                  bobot dan metadata SLM-1
+models/                  bobot dan metadata Sentiment SLM
 assets/                  sprites.svg, icon .ico/.png
 tests/                   23 unit/integration tests
 docs/                    referensi dan arsitektur
@@ -216,7 +216,7 @@ screenshots/             bukti visual QA
 python -m unittest discover -s tests -v
 ```
 
-Mencakup classifier bilingual, relevance gate, injeksi prompt, analisis bukti, golden set, SLM-1, dan konsensus konflik.
+Mencakup classifier bilingual, relevance gate, injeksi prompt, analisis bukti, golden set, Sentiment SLM, dan konsensus konflik.
 
 ## Troubleshooting
 

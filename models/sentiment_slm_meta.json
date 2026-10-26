@@ -1,5 +1,5 @@
 {
-  "version": "SLM-1",
+  "version": "Sentiment SLM",
   "architecture": "Hashed n-gram features (2048) -> 128 -> 64 -> 3 (softmax)",
   "feature_dim": 2048,
   "hidden1": 128,

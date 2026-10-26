@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Set, Tuple
 
-from sentiment_llm.classifier import normalize_text
+from fomo_meter.classifier import normalize_text
 
 FINANCIAL_ANCHORS: Set[str] = {
     # instruments and pairs

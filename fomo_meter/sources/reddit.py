@@ -11,10 +11,10 @@ import re
 import time
 from typing import Any, Dict, List
 
-from sentiment_llm.config import REQUEST_TIMEOUT, TICKERS
-from sentiment_llm.schema import Post, SourceResult, SourceStatus
-from sentiment_llm.sources.analysis import aggregate_posts
-from sentiment_llm.sources.base import BaseSource, SourceFetchError
+from fomo_meter.config import REQUEST_TIMEOUT, TICKERS
+from fomo_meter.schema import Post, SourceResult, SourceStatus
+from fomo_meter.sources.analysis import aggregate_posts
+from fomo_meter.sources.base import BaseSource, SourceFetchError
 
 
 def parse_reddit_listing(payload: Dict[str, Any], ticker: str) -> List[Post]:

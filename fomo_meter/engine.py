@@ -16,9 +16,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
-from sentiment_llm.anti_halu_gates import AntiHallucinationVerifier
-from sentiment_llm.classifier import FastCrowdClassifier
-from sentiment_llm.config import (
+from fomo_meter.anti_halu_gates import AntiHallucinationVerifier
+from fomo_meter.classifier import FastCrowdClassifier
+from fomo_meter.config import (
     DISCLAIMER,
     HISTORY_FILE,
     MAX_HISTORY,
@@ -29,8 +29,8 @@ from sentiment_llm.config import (
     TICKERS,
     ensure_dirs,
 )
-from sentiment_llm.relevance_gate import FinancialRelevanceGate
-from sentiment_llm.schema import (
+from fomo_meter.relevance_gate import FinancialRelevanceGate
+from fomo_meter.schema import (
     AnalysisResult,
     FeedStatus,
     GateCheck,
@@ -43,10 +43,10 @@ from sentiment_llm.schema import (
     SourceStatus,
     Stance,
 )
-from sentiment_llm.slm import SLM1, SLMUnavailable
-from sentiment_llm.sources import build_default_sources
-from sentiment_llm.sources.analysis import _excerpt
-from sentiment_llm.sources.market import MarketSource
+from fomo_meter.slm import SentimentSLM, SLMUnavailable
+from fomo_meter.sources import build_default_sources
+from fomo_meter.sources.analysis import _excerpt
+from fomo_meter.sources.market import MarketSource
 
 
 class NoLiveDataError(RuntimeError):
@@ -87,7 +87,7 @@ class SentimentEngine:
         self.relevance_gate = FinancialRelevanceGate(self.data_dir)
         self.sources = build_default_sources(self.classifier, self.relevance_gate)
         self.market_source = MarketSource()
-        self.slm = SLM1()
+        self.slm = SentimentSLM()
         self._scan_cache: Dict[str, Tuple[float, ScanResult]] = {}
         self._cache_lock = threading.RLock()
         self._history_lock = threading.RLock()
@@ -399,12 +399,12 @@ class SentimentEngine:
         reasoning: Optional[str] = None
         probabilities: Dict[str, float] = {}
         model_error: Optional[str] = None
-        model_gate = _gate("G3", GateState.SKIP, "SLM-1 tidak diminta untuk analisis ini.")
+        model_gate = _gate("G3", GateState.SKIP, "Sentiment SLM tidak diminta untuk analisis ini.")
 
         if use_model:
             if not self.slm.available:
-                model_error = self.slm.error or "SLM-1 belum tersedia."
-                model_gate = _gate("G3", GateState.WARN, f"SLM-1 tidak tersedia: {model_error}")
+                model_error = self.slm.error or "Sentiment SLM belum tersedia."
+                model_gate = _gate("G3", GateState.WARN, f"Sentiment SLM tidak tersedia: {model_error}")
             else:
                 try:
                     prediction = self.slm.predict(clean)
@@ -416,13 +416,13 @@ class SentimentEngine:
                         stance = prediction.stance
                         intensity = prediction.intensity
                         confidence = prediction.confidence
-                        engine = "slm1"
+                        engine = "sentiment_slm"
                         model_gate = _gate(
                             "G3", GateState.PASS,
-                            f"SLM-1 aktif; confidence {prediction.confidence:.0%}.",
+                            f"Sentiment SLM aktif; confidence {prediction.confidence:.0%}.",
                         )
                         reasoning = (
-                            f"SLM-1 memprediksi {prediction.stance.value} "
+                            f"Sentiment SLM memprediksi {prediction.stance.value} "
                             f"(BUY {probabilities.get('BUY', 0):.1%}, "
                             f"SELL {probabilities.get('SELL', 0):.1%}, "
                             f"WAIT {probabilities.get('WAIT', 0):.1%}). "
@@ -431,18 +431,18 @@ class SentimentEngine:
                         )
                     else:
                         model_error = (
-                            f"SLM-1 confidence {prediction.confidence:.0%} di bawah ambang "
+                            f"Sentiment SLM confidence {prediction.confidence:.0%} di bawah ambang "
                             f"{SLM_MIN_CONFIDENCE:.0%}; memakai lexicon baseline."
                         )
                         model_gate = _gate("G3", GateState.WARN, model_error)
                         reasoning = (
-                            f"SLM-1 memprediksi {prediction.stance.value}, tetapi confidence "
+                            f"Sentiment SLM memprediksi {prediction.stance.value}, tetapi confidence "
                             f"{prediction.confidence:.0%} belum cukup. Lexicon baseline "
                             f"{baseline.stance.value} dipakai agar tidak memaksakan arah."
                         )
                 except SLMUnavailable as exc:
                     model_error = str(exc)
-                    model_gate = _gate("G3", GateState.WARN, f"SLM-1 gagal: {model_error}")
+                    model_gate = _gate("G3", GateState.WARN, f"Sentiment SLM gagal: {model_error}")
 
         gates = [
             _gate("G1", GateState.PASS, decision.summary),
@@ -492,14 +492,14 @@ class SentimentEngine:
     # ----------------------------------------------------------------- brief
     def slm_brief(self, ticker: str, scan: Optional[ScanResult] = None, record: bool = True) -> ModelBrief:
         if not self.slm.available:
-            raise SLMUnavailable(self.slm.error or "SLM-1 belum tersedia.")
+            raise SLMUnavailable(self.slm.error or "Sentiment SLM belum tersedia.")
         started = time.perf_counter()
         ticker = ticker.upper().strip()
         scan = scan or self.scan(ticker)
         live_sources = [item for item in scan.sources if item.status == SourceStatus.LIVE]
         if not live_sources:
             raise NoLiveDataError(
-                "Tidak ada sumber live. SLM Brief tidak dibuat karena tidak ada bukti untuk dianalisis."
+                "Tidak ada sumber live. Brief Sentiment SLM tidak dibuat karena tidak ada bukti untuk dianalisis."
             )
 
         posts: List[Post] = []
@@ -515,7 +515,7 @@ class SentimentEngine:
                 seen.add(key)
                 posts.append(post)
         if not posts:
-            raise NoLiveDataError("Tidak ada post yang lolos gate relevansi untuk SLM Brief.")
+            raise NoLiveDataError("Tidak ada post yang lolos gate relevansi untuk Brief Sentiment SLM.")
         posts = posts[:16]
 
         predictions = []
@@ -560,7 +560,7 @@ class SentimentEngine:
 
         drivers_text = ", ".join(key_drivers) if key_drivers else "tidak ada term lexicon dominan"
         reasoning = (
-            f"SLM-1 menganalisis {len(posts)} post live dari {len(live_sources)} sumber. "
+            f"Sentiment SLM menganalisis {len(posts)} post live dari {len(live_sources)} sumber. "
             f"Distribusi model: {counts.get('BUY', 0)} BUY, {counts.get('SELL', 0)} SELL, "
             f"{counts.get('WAIT', 0)} WAIT. Probabilitas rata-rata: "
             f"BUY {average['BUY']:.0%}, SELL {average['SELL']:.0%}, WAIT {average['WAIT']:.0%}. "
@@ -587,7 +587,7 @@ class SentimentEngine:
             timestamp=time.time(),
             sample_size=len(posts),
             disclaimer=(
-                "Brief ini dihasilkan model lokal SLM-1 dari post yang lolos gate. "
+                "Brief ini dihasilkan model lokal Sentiment SLM dari post yang lolos gate. "
                 "Model tidak menambah data atau bukti baru, dan tidak mengubah konsensus radar."
             ),
         )
@@ -599,7 +599,7 @@ class SentimentEngine:
                 stance=stance.value,
                 intensity=intensity,
                 text=reasoning[:280],
-                engine="slm1",
+                engine="sentiment_slm",
                 model=self.slm.version,
             ))
         return brief

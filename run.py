@@ -21,22 +21,22 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sentiment_llm.config import TICKERS, ensure_dirs
+from fomo_meter.config import TICKERS, ensure_dirs
 
 
 def command_gui(_args: argparse.Namespace) -> int:
-    from sentiment_llm.desktop import run_desktop
+    from fomo_meter.desktop import run_desktop
     return run_desktop()
 
 
 def command_serve(args: argparse.Namespace) -> int:
-    from sentiment_llm.web_dashboard import run_server
+    from fomo_meter.web_dashboard import run_server
     run_server(port=args.port)
     return 0
 
 
 def command_scan(args: argparse.Namespace) -> int:
-    from sentiment_llm.engine import SentimentEngine
+    from fomo_meter.engine import SentimentEngine
     engine = SentimentEngine()
     try:
         scan = engine.scan(args.ticker, force=args.force)
@@ -58,7 +58,7 @@ def command_scan(args: argparse.Namespace) -> int:
 
 
 def command_analyze(args: argparse.Namespace) -> int:
-    from sentiment_llm.engine import SentimentEngine
+    from fomo_meter.engine import SentimentEngine
     engine = SentimentEngine()
     try:
         text = args.text or sys.stdin.read()
@@ -81,7 +81,7 @@ def command_analyze(args: argparse.Namespace) -> int:
 
 
 def command_brief(args: argparse.Namespace) -> int:
-    from sentiment_llm.engine import SentimentEngine
+    from fomo_meter.engine import SentimentEngine
     engine = SentimentEngine()
     try:
         brief = engine.slm_brief(args.ticker, record=False)
@@ -101,7 +101,7 @@ def command_brief(args: argparse.Namespace) -> int:
 
 
 def command_status(_args: argparse.Namespace) -> int:
-    from sentiment_llm.engine import SentimentEngine
+    from fomo_meter.engine import SentimentEngine
     engine = SentimentEngine()
     try:
         print(json.dumps(engine.status(), ensure_ascii=False, indent=2))
@@ -130,11 +130,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     analyze = sub.add_parser("analyze", help="Analisis satu teks")
     analyze.add_argument("--text", default="", help="Teks; kosong berarti baca stdin")
-    analyze.add_argument("--model", action="store_true", help="Gunakan SLM-1")
+    analyze.add_argument("--model", action="store_true", help="Gunakan Sentiment SLM")
     analyze.add_argument("--json", action="store_true")
     analyze.set_defaults(func=command_analyze)
 
-    brief = sub.add_parser("brief", help="Buat SLM Brief dari scan live")
+    brief = sub.add_parser("brief", help="Buat Brief Sentiment SLM dari scan live")
     brief.add_argument("--ticker", default="BTCUSD", choices=sorted(TICKERS))
     brief.add_argument("--json", action="store_true")
     brief.set_defaults(func=command_brief)

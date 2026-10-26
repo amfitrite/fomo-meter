@@ -4,15 +4,15 @@ from __future__ import annotations
 
 from typing import List
 
-from sentiment_llm.classifier import FastCrowdClassifier
-from sentiment_llm.relevance_gate import FinancialRelevanceGate
-from sentiment_llm.sources.base import BaseSource
-from sentiment_llm.sources.market import MarketSource
-from sentiment_llm.sources.news import NewsSource
-from sentiment_llm.sources.reddit import RedditSource
-from sentiment_llm.sources.stocktwits import StockTwitsSource
-from sentiment_llm.sources.x_twitter import XSource
-from sentiment_llm.sources.yahoo_wire import YahooWireSource
+from fomo_meter.classifier import FastCrowdClassifier
+from fomo_meter.relevance_gate import FinancialRelevanceGate
+from fomo_meter.sources.base import BaseSource
+from fomo_meter.sources.market import MarketSource
+from fomo_meter.sources.news import NewsSource
+from fomo_meter.sources.reddit import RedditSource
+from fomo_meter.sources.stocktwits import StockTwitsSource
+from fomo_meter.sources.x_twitter import XSource
+from fomo_meter.sources.yahoo_wire import YahooWireSource
 
 __all__ = [
     "BaseSource",

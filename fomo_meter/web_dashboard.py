@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.parse import parse_qs, unquote, urlparse
 
-from sentiment_llm.config import (
+from fomo_meter.config import (
     APP_NAME,
     APP_VERSION,
     ASSETS_DIR,
@@ -29,8 +29,8 @@ from sentiment_llm.config import (
     WEB_DIR,
     ensure_dirs,
 )
-from sentiment_llm.engine import NoLiveDataError, SentimentEngine
-from sentiment_llm.slm import SLMUnavailable
+from fomo_meter.engine import NoLiveDataError, SentimentEngine
+from fomo_meter.slm import SLMUnavailable
 
 LOGGER = logging.getLogger("fomo_meter.web")
 

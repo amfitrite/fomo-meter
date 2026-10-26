@@ -4,8 +4,8 @@ import json
 import unittest
 from pathlib import Path
 
-from sentiment_llm.classifier import FastCrowdClassifier
-from sentiment_llm.relevance_gate import FinancialRelevanceGate
+from fomo_meter.classifier import FastCrowdClassifier
+from fomo_meter.relevance_gate import FinancialRelevanceGate
 
 GOLDEN_FILE = Path(__file__).resolve().parent.parent / "data" / "golden_set.json"
 

@@ -14,7 +14,7 @@ Sumber publik
 Adapter + cache + timeout + status per sumber
         │
         ▼
-Relevance gate ──> lexicon deterministik ──> SLM-1 (jika yakin)
+Relevance gate ──> lexicon deterministik ──> Sentiment SLM (jika yakin)
         │
         ▼
 Consensus + conflict handling + 9 integrity gates
@@ -31,24 +31,25 @@ HTTP server lokal 127.0.0.1:<ephemeral>
 - **Adapter sumber** hanya mengembalikan payload nyata atau status gagal. Tidak
   ada fallback sintetis.
 - **Relevance gate** menolak spam, teks non-finansial, dan instruksi injeksi.
-- **Klasifikasi** memakai lexicon sebagai baseline/fallback. SLM-1 dipakai bila
-  tersedia dan keyakinannya memadai.
+- **Klasifikasi** memakai lexicon sebagai baseline/fallback. Sentiment SLM
+  dipakai bila tersedia dan keyakinannya memadai.
 - **Konsensus** tidak merata-ratakan BUY dan SELL menjadi satu angka. Konflik
   ditampilkan sebagai `CONFLICT`.
 - **Konteks pasar** (harga, Fear & Greed) hanya untuk konteks; tidak boleh
   mengubah arah sentimen.
 
-## 2. SLM-1
+## 2. Sentiment SLM
 
 - Fitur: hashed word/char n-gram, 2.048 dimensi.
 - Jaringan: 2.048 → 128 ReLU → 64 ReLU → softmax 3 kelas (`BUY`, `SELL`, `WAIT`).
 - Pelatihan: numpy murni, Adam, dropout, class weighting, early stopping.
 - Dataset: 1.042 contoh kurasi; 885 train / 157 validation.
 - Validasi: akurasi 94,27%; macro F1 0,944.
-- Bobot lokal: `models/slm1.npz`; metadata: `models/slm1_meta.json`.
+- Bobot lokal: `models/sentiment_slm.npz`; metadata: `models/sentiment_slm_meta.json`.
 
-SLM-1 adalah classifier saraf, bukan model generatif. `brief` adalah ringkasan
-deterministik dari output model dan bukti post yang lolos gate, bukan teks bebas.
+Sentiment SLM adalah classifier saraf, bukan model generatif. `brief` adalah
+ringkasan deterministik dari output model dan bukti post yang lolos gate, bukan
+teks bebas.
 
 ## 3. Anti-halusinasi
 
@@ -120,5 +121,5 @@ python tools/screenshot.py
 python tools/install_shortcut.py
 ```
 
-Shortcut target: `pythonw.exe "D:\Sentiment LLM\run_gui.pyw"` dengan working
-directory `D:\Sentiment LLM`.
+Shortcut target: `pythonw.exe "D:\FOMO Meter\run_gui.pyw"` dengan working
+directory `D:\FOMO Meter`.

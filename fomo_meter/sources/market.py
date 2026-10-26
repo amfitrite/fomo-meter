@@ -13,8 +13,8 @@ from typing import Any, Dict, Optional, Tuple
 
 import requests
 
-from sentiment_llm.config import MARKET_CACHE_TTL, REQUEST_TIMEOUT, TICKERS, USER_AGENT
-from sentiment_llm.schema import MarketContext
+from fomo_meter.config import MARKET_CACHE_TTL, REQUEST_TIMEOUT, TICKERS, USER_AGENT
+from fomo_meter.schema import MarketContext
 
 
 class MarketSource:

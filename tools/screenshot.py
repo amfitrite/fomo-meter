@@ -25,8 +25,8 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
-from sentiment_llm.config import SCREENSHOT_DIR, ensure_dirs
-from sentiment_llm.web_dashboard import DashboardServer, configure_logging
+from fomo_meter.config import SCREENSHOT_DIR, ensure_dirs
+from fomo_meter.web_dashboard import DashboardServer, configure_logging
 
 
 class CapturePage(QWebEnginePage):

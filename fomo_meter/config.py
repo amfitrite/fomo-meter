@@ -15,13 +15,13 @@ APP_VERSION = "2.0.0"
 APP_TAGLINE = "Crowd Psychology Radar"
 APP_DESCRIPTION = (
     "Radar sentimen publik multi-sumber dengan gate anti-halusinasi, "
-    "klasifikasi slang trading Indonesia/Inggris, dan model saraf lokal SLM-1."
+    "klasifikasi slang trading Indonesia/Inggris, dan model saraf lokal Sentiment SLM."
 )
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 ASSETS_DIR = ROOT / "assets"
-WEB_DIR = ROOT / "sentiment_llm" / "web"
+WEB_DIR = ROOT / "fomo_meter" / "web"
 LOG_DIR = ROOT / "logs"
 SCREENSHOT_DIR = ROOT / "screenshots"
 MODELS_DIR = ROOT / "models"
@@ -160,16 +160,16 @@ SOURCE_META: List[Dict[str, Any]] = [
 
 NEWS_LOCALE = {"hl": "en-US", "gl": "US", "ceid": "US:en"}
 
-# In-house neural model (SLM-1) ---------------------------------------------
+# In-house neural model (Sentiment SLM) ---------------------------------------------
 # This is not a wrapper around Ollama, OpenAI, or any hosted model. The small
 # hashed-feature neural language model is trained locally from the curated
 # dataset below and loaded from local weights.
-SLM_WEIGHTS = MODELS_DIR / "slm1.npz"
-SLM_META = MODELS_DIR / "slm1_meta.json"
+SLM_WEIGHTS = MODELS_DIR / "sentiment_slm.npz"
+SLM_META = MODELS_DIR / "sentiment_slm_meta.json"
 SLM_DATASET = DATA_DIR / "slm_training.jsonl"
 SLM_FEATURE_DIM = 2048
 SLM_MIN_CONFIDENCE = 0.50
-SLM_VERSION = "SLM-1"
+SLM_VERSION = "Sentiment SLM"
 SLM_ARCHITECTURE = "Hashed n-gram features → 128 → 64 → 3 (softmax)"
 
 DISCLAIMER = (

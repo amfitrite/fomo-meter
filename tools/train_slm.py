@@ -1,5 +1,5 @@
 """
-Train SLM-1, the in-house finance sentiment model.
+Train Sentiment SLM, the in-house finance sentiment model.
 
 This is a from-scratch numpy implementation: hashed n-gram features, a two-layer
 ReLU network, and a softmax head. It does not import PyTorch, TensorFlow, Ollama,
@@ -29,8 +29,8 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sentiment_llm.config import SLM_DATASET, SLM_FEATURE_DIM, SLM_META, SLM_WEIGHTS
-from sentiment_llm.slm_features import FEATURE_DIM, featurize
+from fomo_meter.config import SLM_DATASET, SLM_FEATURE_DIM, SLM_META, SLM_WEIGHTS
+from fomo_meter.slm_features import FEATURE_DIM, featurize
 
 LABELS = ["BUY", "SELL", "WAIT"]
 LABEL_INDEX = {label: index for index, label in enumerate(LABELS)}
@@ -218,7 +218,7 @@ def train(args: argparse.Namespace) -> int:
     rng = np.random.default_rng(args.seed + 99)
     step = 0
 
-    print(f"SLM-1 training: {len(train_rows)} train / {len(val_rows)} validation")
+    print(f"Sentiment SLM training: {len(train_rows)} train / {len(val_rows)} validation")
     print(f"Labels: {dict(counts)}")
     print(f"Architecture: {FEATURE_DIM} -> {args.hidden1} -> {args.hidden2} -> 3")
     started = time.perf_counter()
@@ -350,7 +350,7 @@ def train(args: argparse.Namespace) -> int:
 
     dataset_bytes = SLM_DATASET.read_bytes()
     meta = {
-        "version": "SLM-1",
+        "version": "Sentiment SLM",
         "architecture": f"Hashed n-gram features ({FEATURE_DIM}) -> {args.hidden1} -> {args.hidden2} -> 3 (softmax)",
         "feature_dim": FEATURE_DIM,
         "hidden1": args.hidden1,
@@ -381,7 +381,7 @@ def train(args: argparse.Namespace) -> int:
     with SLM_META.open("w", encoding="utf-8", newline="\n") as handle:
         json.dump(meta, handle, ensure_ascii=False, indent=2)
         handle.write("\n")
-    with (ROOT / "models" / "slm1_training.json").open("w", encoding="utf-8", newline="\n") as handle:
+    with (ROOT / "models" / "sentiment_slm_training.json").open("w", encoding="utf-8", newline="\n") as handle:
         json.dump(history, handle, ensure_ascii=False, indent=2)
         handle.write("\n")
 
@@ -393,7 +393,7 @@ def train(args: argparse.Namespace) -> int:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Train SLM-1 from scratch.")
+    parser = argparse.ArgumentParser(description="Train Sentiment SLM from scratch.")
     parser.add_argument("--epochs", type=int, default=140)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--learning-rate", type=float, default=0.003)

@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import unittest
 
-from sentiment_llm.slm import SLM1
+from fomo_meter.slm import SentimentSLM
 
 
 class SLMTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.model = SLM1()
+        cls.model = SentimentSLM()
 
     def test_model_is_available(self) -> None:
         self.assertTrue(self.model.available, self.model.error)

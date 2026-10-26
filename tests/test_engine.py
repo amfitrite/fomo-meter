@@ -4,8 +4,8 @@ import tempfile
 import time
 import unittest
 
-from sentiment_llm.engine import SentimentEngine
-from sentiment_llm.schema import (
+from fomo_meter.engine import SentimentEngine
+from fomo_meter.schema import (
     MarketContext,
     Post,
     SourceResult,
@@ -129,7 +129,7 @@ class EngineTests(unittest.TestCase):
         )
         self.assertTrue(analysis.is_relevant)
         self.assertEqual(analysis.stance.value, "BUY")
-        self.assertEqual(analysis.engine, "slm1")
+        self.assertEqual(analysis.engine, "sentiment_slm")
         self.assertAlmostEqual(sum(analysis.probabilities.values()), 1.0, places=2)
 
     def test_irrelevant_text_is_rejected(self) -> None:

@@ -8,9 +8,9 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Iterable, List, Optional
 
-from sentiment_llm.classifier import Classification, FastCrowdClassifier
-from sentiment_llm.relevance_gate import FinancialRelevanceGate
-from sentiment_llm.schema import Post, SourceResult, SourceStatus, Stance
+from fomo_meter.classifier import Classification, FastCrowdClassifier
+from fomo_meter.relevance_gate import FinancialRelevanceGate
+from fomo_meter.schema import Post, SourceResult, SourceStatus, Stance
 
 
 @dataclass

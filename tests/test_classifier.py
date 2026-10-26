@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from sentiment_llm.classifier import FastCrowdClassifier
-from sentiment_llm.relevance_gate import FinancialRelevanceGate
+from fomo_meter.classifier import FastCrowdClassifier
+from fomo_meter.relevance_gate import FinancialRelevanceGate
 
 
 class ClassifierTests(unittest.TestCase):

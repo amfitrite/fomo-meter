@@ -11,10 +11,10 @@ import urllib.parse
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from sentiment_llm.config import REQUEST_TIMEOUT, TICKERS
-from sentiment_llm.schema import Post, SourceResult, SourceStatus
-from sentiment_llm.sources.analysis import aggregate_posts
-from sentiment_llm.sources.base import BaseSource, SourceFetchError
+from fomo_meter.config import REQUEST_TIMEOUT, TICKERS
+from fomo_meter.schema import Post, SourceResult, SourceStatus
+from fomo_meter.sources.analysis import aggregate_posts
+from fomo_meter.sources.base import BaseSource, SourceFetchError
 
 
 CASHTAGS = {
@@ -146,5 +146,5 @@ class XSource(BaseSource):
 
     @staticmethod
     def _wait():
-        from sentiment_llm.schema import Stance
+        from fomo_meter.schema import Stance
         return Stance.WAIT

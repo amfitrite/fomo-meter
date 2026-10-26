@@ -21,7 +21,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RUN_GUI = ROOT / "run_gui.pyw"
 ICON = ROOT / "assets" / "fomo_meter.ico"
-LEGACY_SHORTCUT_NAME = "Sentiment LLM"
 
 
 def _pythonw() -> Path:
@@ -70,22 +69,6 @@ def start_menu_path() -> Path:
     return appdata / "Microsoft" / "Windows" / "Start Menu" / "Programs"
 
 
-def remove_legacy_shortcuts(shortcuts: list[Path], args) -> None:
-    if args.name != "FOMO Meter":
-        return
-    legacy_paths = [desktop_path() / f"{LEGACY_SHORTCUT_NAME}.lnk"]
-    if args.start_menu:
-        legacy_paths.append(start_menu_path() / f"{LEGACY_SHORTCUT_NAME}.lnk")
-    for legacy in legacy_paths:
-        if legacy in shortcuts or not legacy.exists():
-            continue
-        try:
-            legacy.unlink()
-            print(f"Shortcut lama dihapus: {legacy}")
-        except OSError as exc:
-            print(f"Tidak bisa menghapus shortcut lama {legacy}: {exc}", file=sys.stderr)
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description="Install the FOMO Meter desktop shortcut.")
     parser.add_argument("--start-menu", action="store_true", help="Also create a Start Menu shortcut.")
@@ -113,7 +96,6 @@ def main() -> int:
         except Exception as exc:
             print(f"Gagal membuat {shortcut}: {exc}", file=sys.stderr)
             return 1
-    remove_legacy_shortcuts(shortcuts, args)
     print(f"Target: {target} {arguments}")
     return 0
 

@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import os
 import sys
-from pathlib import Path
 
 # Set these before importing QtWebEngine. Hardware acceleration keeps the radar
 # animations and the real FPS meter smooth; Chromium falls back to software
@@ -30,8 +29,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QSizeGrip
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
-from sentiment_llm.config import APP_NAME, APP_TAGLINE, APP_VERSION, ASSETS_DIR, ensure_dirs
-from sentiment_llm.web_dashboard import DashboardServer, configure_logging
+from fomo_meter.config import APP_NAME, APP_TAGLINE, APP_VERSION, ASSETS_DIR, ensure_dirs
+from fomo_meter.web_dashboard import DashboardServer, configure_logging
 
 WINDOW_COMMAND_PREFIX = "FOMO_WINDOW|"
 

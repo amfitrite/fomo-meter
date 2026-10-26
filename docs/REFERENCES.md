@@ -34,10 +34,10 @@ Periksa lisensi masing-masing repo sebelum memakai kode secara langsung.
 |---|---|---:|---|---|
 | [rasbt/LLMs-from-scratch](https://github.com/rasbt/LLMs-from-scratch) | Membangun LLM dari nol, langkah demi langkah | 107.289 | NOASSERTION | Disiplin tokenisasi, split data, evaluasi, dan pelatihan. Bukan dependensi. |
 | [karpathy/nanoGPT](https://github.com/karpathy/nanoGPT) | GPT minimal untuk pelatihan | 64.078 | MIT | Prinsip model kecil, training loop yang dapat diaudit, dan evaluasi holdout. |
-| [karpathy/micrograd](https://github.com/karpathy/micrograd) | Autograd dan neural net minimal | 18.056 | MIT | Pemahaman backpropagation; SLM-1 memakai forward/backward numpy sendiri. |
+| [karpathy/micrograd](https://github.com/karpathy/micrograd) | Autograd dan neural net minimal | 18.056 | MIT | Pemahaman backpropagation; Sentiment SLM memakai forward/backward numpy sendiri. |
 | [jingyaogong/minimind](https://github.com/jingyaogong/minimind) | Melatih LLM kecil dari nol | 64.421 | Apache-2.0 | Inspirasi model kecil yang dilatih dan dievaluasi secara lokal. |
 
-**Posisi proyek ini:** FOMO Meter memakai SLM-1, model saraf kecil buatan sendiri
+**Posisi proyek ini:** FOMO Meter memakai Sentiment SLM, model saraf kecil buatan sendiri
 (hashed n-gram → MLP → softmax), dilatih dari dataset kurasi proyek. Ini bukan
 wrapper Ollama, OpenAI, HuggingFace, atau model pihak ketiga. Nama FOMO Meter
 mengacu pada psikologi kerumunan pasar; kemampuan dan batasan model tetap
@@ -67,7 +67,7 @@ ditampilkan secara jujur di UI.
 3. **Relevansi ticker adalah gate wajib.** Post yang hanya menyebut ticker lain
    tidak boleh masuk konsensus.
 4. **Dual engine.** Lexicon deterministik menjadi baseline dan fallback;
-   SLM-1 digunakan saat tersedia dan cukup yakin.
+   Sentiment SLM digunakan saat tersedia dan cukup yakin.
 5. **Rate limit dan cache.** Adapter sumber memakai timeout, retry terbatas, dan
    cache agar tidak membanjiri API publik.
 6. **Tanpa Ollama / API model pihak ketiga.** Semua inferensi model terjadi

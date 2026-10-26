@@ -9,8 +9,8 @@ from typing import Dict, Optional, Tuple
 
 import requests
 
-from sentiment_llm.config import REQUEST_TIMEOUT, USER_AGENT
-from sentiment_llm.schema import SourceResult, SourceStatus, Stance
+from fomo_meter.config import REQUEST_TIMEOUT, USER_AGENT
+from fomo_meter.schema import SourceResult, SourceStatus, Stance
 
 
 class SourceFetchError(Exception):

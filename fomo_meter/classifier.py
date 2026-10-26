@@ -7,7 +7,7 @@ The classifier is deliberately lightweight, offline, and explainable:
 - finance-specific emoji polarity
 - explicit ambiguity when buy/sell evidence is close
 
-It is not an LLM. The optional neural model (SLM-1) lives in slm.py and is
+It is not an LLM. The optional neural model (Sentiment SLM) lives in slm.py and is
 clearly labelled in the UI.
 """
 
@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from sentiment_llm.schema import Stance
+from fomo_meter.schema import Stance
 
 
 @dataclass

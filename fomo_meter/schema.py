@@ -156,7 +156,7 @@ class HistoryEntry(BaseModel):
 
 class ModelStatus(BaseModel):
     available: bool
-    version: str = "SLM-1"
+    version: str = "Sentiment SLM"
     architecture: str = ""
     accuracy: float = 0.0
     samples: int = 0

@@ -1,5 +1,5 @@
 """
-Feature extraction for SLM-1, the in-house neural sentiment model.
+Feature extraction for Sentiment SLM, the in-house neural sentiment model.
 
 Features are stable hashed n-grams:
 - word unigrams and bigrams
@@ -20,7 +20,7 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
-from sentiment_llm.classifier import normalize_text
+from fomo_meter.classifier import normalize_text
 
 FEATURE_DIM = 2048
 

@@ -7,10 +7,10 @@ import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from sentiment_llm.config import REQUEST_TIMEOUT, TICKERS
-from sentiment_llm.schema import Post, SourceResult, SourceStatus, Stance
-from sentiment_llm.sources.analysis import aggregate_posts
-from sentiment_llm.sources.base import BaseSource, SourceFetchError
+from fomo_meter.config import REQUEST_TIMEOUT, TICKERS
+from fomo_meter.schema import Post, SourceResult, SourceStatus, Stance
+from fomo_meter.sources.analysis import aggregate_posts
+from fomo_meter.sources.base import BaseSource, SourceFetchError
 
 
 def _parse_created_at(value: Optional[str]) -> float:

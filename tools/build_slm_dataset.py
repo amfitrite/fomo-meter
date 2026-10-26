@@ -1,5 +1,5 @@
 """
-Build the curated training set for SLM-1.
+Build the curated training set for Sentiment SLM.
 
 The dataset is deliberately small, bilingual, and finance-specific. Sentences
 are generated from hand-written templates plus a set of difficult curated
@@ -563,7 +563,7 @@ def main() -> int:
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
 
     meta = {
-        "version": "SLM-1",
+        "version": "Sentiment SLM",
         "generated_at": "2026-10-26",
         "total": len(rows),
         "counts": dict(counts),

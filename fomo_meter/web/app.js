@@ -623,7 +623,7 @@
     if (badge && badgeText) {
       badge.classList.toggle("online", available);
       badge.classList.toggle("offline", !available);
-      badgeText.textContent = available ? "SLM-1 · lokal" : "SLM-1 · offline";
+      badgeText.textContent = available ? "Sentiment SLM · lokal" : "Sentiment SLM · offline";
     }
     if (status) {
       status.textContent = available
@@ -642,7 +642,7 @@
     const button = $("#briefBtn");
     const result = $("#briefResult");
     STATE.briefLoading = true;
-    setBusy(button, true, "Buat SLM Brief", "Menyusun brief…");
+    setBusy(button, true, "Buat Brief", "Menyusun brief…");
     result.hidden = true;
     try {
       const brief = await api("/api/brief", {
@@ -652,12 +652,12 @@
       renderBrief(brief);
       loadHistory();
     } catch (error) {
-      showToast(error.message || "SLM Brief gagal dibuat.", error.kind === "NO_LIVE_DATA" ? "warn" : "error");
+      showToast(error.message || "Brief Sentiment SLM gagal dibuat.", error.kind === "NO_LIVE_DATA" ? "warn" : "error");
       result.hidden = false;
-      result.innerHTML = `<p class="error-note">${escapeHtml(error.message || "SLM Brief gagal dibuat.")}</p>`;
+      result.innerHTML = `<p class="error-note">${escapeHtml(error.message || "Brief Sentiment SLM gagal dibuat.")}</p>`;
     } finally {
       STATE.briefLoading = false;
-      setBusy(button, false, "Buat SLM Brief", "Menyusun brief…");
+      setBusy(button, false, "Buat Brief", "Menyusun brief…");
     }
   }
 
@@ -748,7 +748,7 @@
       const state = String(gate.state || "SKIP").toUpperCase();
       return `<span class="mini-gate ${state.toLowerCase()}">${icon(GATE_ICONS[state] || "icon-skip")}${escapeHtml(gate.id)}</span>`;
     }).join("");
-    const engine = analysis.engine === "slm1" ? "SLM-1" : "Lexicon";
+    const engine = analysis.engine === "sentiment_slm" ? "Sentiment SLM" : "Lexicon";
     const modelError = analysis.model_error ? `<p class="error-note">${escapeHtml(analysis.model_error)}</p>` : "";
     const reason = analysis.reasoning || analysis.reason || "";
     result.innerHTML = `
@@ -788,7 +788,7 @@
       const isRejected = entry.kind === "rejected";
       const title = isRejected
         ? "Ditolak gate relevansi"
-        : (isBrief ? `${entry.ticker || "—"} · SLM Brief` : "Analisis teks");
+        : (isBrief ? `${entry.ticker || "—"} · Brief Sentiment SLM` : "Analisis teks");
       const detail = entry.text || "—";
       const displayStance = isRejected ? "TOLAK" : stance;
       return `<div class="history-item">

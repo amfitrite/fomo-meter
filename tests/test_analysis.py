@@ -3,10 +3,10 @@ from __future__ import annotations
 import time
 import unittest
 
-from sentiment_llm.schema import Post
-from sentiment_llm.sources.analysis import aggregate_posts
-from sentiment_llm.classifier import FastCrowdClassifier
-from sentiment_llm.relevance_gate import FinancialRelevanceGate
+from fomo_meter.schema import Post
+from fomo_meter.sources.analysis import aggregate_posts
+from fomo_meter.classifier import FastCrowdClassifier
+from fomo_meter.relevance_gate import FinancialRelevanceGate
 
 
 class AggregateTests(unittest.TestCase):
