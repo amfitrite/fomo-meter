@@ -1,0 +1,142 @@
+[
+  {
+    "timestamp": 1792995196.9572937,
+    "kind": "text",
+    "ticker": null,
+    "stance": "BUY",
+    "intensity": 99,
+    "text": "Bitcoin breakout with massive volume, buy the dip",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792995196.9626737,
+    "kind": "text",
+    "ticker": null,
+    "stance": "SELL",
+    "intensity": 99,
+    "text": "Whales dumping, cut loss now",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792995196.9644482,
+    "kind": "text",
+    "ticker": null,
+    "stance": "WAIT",
+    "intensity": 50,
+    "text": "Sideways ahead of CPI, wait and see",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792995196.965691,
+    "kind": "text",
+    "ticker": null,
+    "stance": "WAIT",
+    "intensity": 0,
+    "text": "Our office badminton team practices every Tuesday",
+    "engine": "lexicon",
+    "model": null
+  },
+  {
+    "timestamp": 1792995197.0069046,
+    "kind": "brief",
+    "ticker": "BTCUSD",
+    "stance": "BUY",
+    "intensity": 63,
+    "text": "SLM-1 menganalisis 16 post live dari 1 sumber. Distribusi model: 11 BUY, 4 SELL, 1 WAIT. Probabilitas rata-rata: BUY 62%, SELL 35%, WAIT 3%. Driver lexicon: up, slips, bug, steal, selloff, falls, bearish, bull market.",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792995282.32613,
+    "kind": "brief",
+    "ticker": "BTCUSD",
+    "stance": "SELL",
+    "intensity": 61,
+    "text": "SLM-1 menganalisis 16 post live dari 1 sumber. Distribusi model: 4 BUY, 10 SELL, 2 WAIT. Probabilitas rata-rata: BUY 32%, SELL 54%, WAIT 14%. Driver lexicon: up, slips, bug, steal, selloff, falls, bearish, bull market.",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792995706.2129796,
+    "kind": "text",
+    "ticker": null,
+    "stance": "BUY",
+    "intensity": 99,
+    "text": "Bitcoin breakout with volume, buy the dip",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792995706.2565446,
+    "kind": "brief",
+    "ticker": "BTCUSD",
+    "stance": "SELL",
+    "intensity": 61,
+    "text": "SLM-1 menganalisis 16 post live dari 1 sumber. Distribusi model: 4 BUY, 10 SELL, 2 WAIT. Probabilitas rata-rata: BUY 32%, SELL 54%, WAIT 14%. Driver lexicon: up, slips, selloff, bug, steal, falls, bearish, bull market.",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792996204.0380836,
+    "kind": "text",
+    "ticker": null,
+    "stance": "BUY",
+    "intensity": 99,
+    "text": "Bitcoin breakout di atas resistance dengan volume besar, serok kawan, target next leg up",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792996209.5593472,
+    "kind": "brief",
+    "ticker": "BTCUSD",
+    "stance": "SELL",
+    "intensity": 65,
+    "text": "SLM-1 menganalisis 16 post live dari 2 sumber. Distribusi model: 3 BUY, 11 SELL, 2 WAIT. Probabilitas rata-rata: BUY 28%, SELL 58%, WAIT 14%. Driver lexicon: slips, selloff, bug, steal, up, falls, bearish, bull market.",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792996687.6956575,
+    "kind": "brief",
+    "ticker": "SPY",
+    "stance": "BUY",
+    "intensity": 59,
+    "text": "SLM-1 menganalisis 16 post live dari 3 sumber. Distribusi model: 10 BUY, 6 SELL, 0 WAIT. Probabilitas rata-rata: BUY 59%, SELL 41%, WAIT 1%. Driver lexicon: drop, up, losses, slips, wait, hold, sell, risk.",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792996698.2437103,
+    "kind": "brief",
+    "ticker": "XAUUSD",
+    "stance": "BUY",
+    "intensity": 69,
+    "text": "SLM-1 menganalisis 16 post live dari 3 sumber. Distribusi model: 12 BUY, 3 SELL, 1 WAIT. Probabilitas rata-rata: BUY 67%, SELL 28%, WAIT 6%. Driver lexicon: decline, bearish, demand, down, best, up, dropped, long.",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792999300.9738483,
+    "kind": "text",
+    "ticker": null,
+    "stance": "BUY",
+    "intensity": 98,
+    "text": "Bitcoin breakout di atas resistance, volume besar, serok kawan, target next leg up",
+    "engine": "slm1",
+    "model": "SLM-1"
+  },
+  {
+    "timestamp": 1792999303.8755014,
+    "kind": "brief",
+    "ticker": "BTCUSD",
+    "stance": "BUY",
+    "intensity": 58,
+    "text": "SLM-1 menganalisis 16 post live dari 3 sumber. Distribusi model: 11 BUY, 5 SELL, 0 WAIT. Probabilitas rata-rata: BUY 57%, SELL 41%, WAIT 2%. Driver lexicon: watch, risk, hold, buy, sell, up, short, upgrades.",
+    "engine": "slm1",
+    "model": "SLM-1"
+  }
+]

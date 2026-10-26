@@ -1,0 +1,54 @@
+{
+  "version": "SLM-1",
+  "architecture": "Hashed n-gram features (2048) -> 128 -> 64 -> 3 (softmax)",
+  "feature_dim": 2048,
+  "hidden1": 128,
+  "hidden2": 64,
+  "labels": [
+    "BUY",
+    "SELL",
+    "WAIT"
+  ],
+  "accuracy": 0.9427,
+  "macro_f1": 0.944,
+  "golden_accuracy": 1.0,
+  "golden_correct": 12,
+  "golden_total": 12,
+  "samples": 1042,
+  "train_samples": 885,
+  "val_samples": 157,
+  "best_epoch": 2,
+  "epochs_run": 27,
+  "trained_at": "2026-10-26T06:14:30.559770+00:00",
+  "dataset_sha256": "cf2d97f1b4f56a5ffd994958d606926dcfa8750cf4e86eaf740093b99cbdc802",
+  "label_counts": {
+    "WAIT": 286,
+    "SELL": 372,
+    "BUY": 384
+  },
+  "class_weight": {
+    "BUY": 0.8889,
+    "SELL": 0.9176,
+    "WAIT": 1.1935
+  },
+  "final_train_accuracy": 0.9864,
+  "final_val_confusion": {
+    "BUY": {
+      "BUY": 56,
+      "SELL": 1,
+      "WAIT": 1
+    },
+    "SELL": {
+      "BUY": 4,
+      "SELL": 52,
+      "WAIT": 0
+    },
+    "WAIT": {
+      "BUY": 3,
+      "SELL": 0,
+      "WAIT": 40
+    }
+  },
+  "training_seconds": 25.98,
+  "notes": "Trained locally from data/slm_training.jsonl. No pretrained weights or hosted model APIs are used."
+}

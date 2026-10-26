@@ -1,0 +1,26 @@
+{
+  "version": "SLM-1",
+  "generated_at": "2026-10-26",
+  "total": 1042,
+  "counts": {
+    "WAIT": 286,
+    "SELL": 372,
+    "BUY": 384
+  },
+  "languages": {
+    "en": 562,
+    "mixed": 460,
+    "id": 20
+  },
+  "sources": {
+    "headline_wait": 154,
+    "template_wait": 100,
+    "curated": 175,
+    "template_bear": 180,
+    "template_bull": 180,
+    "headline_bull": 126,
+    "headline_bear": 127
+  },
+  "golden_excluded": true,
+  "note": "Curated/templated finance data. No live feed data is stored here."
+}

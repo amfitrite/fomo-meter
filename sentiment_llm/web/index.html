@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="FOMO Meter — radar sentimen publik multi-sumber dengan gate anti-halusinasi.">
+  <title>FOMO Meter · Crowd Psychology Radar</title>
+  <link rel="icon" href="/assets/fomo_meter_256.png" type="image/png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+  <div class="app-shell">
+    <header class="topbar" id="appTopbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg><use href="/assets/sprites.svg#mark-radar"></use></svg>
+        </span>
+        <span class="brand-copy">
+          <strong>FOMO <em>Meter</em></strong>
+          <small>Crowd Psychology Radar</small>
+        </span>
+      </div>
+
+      <nav class="ticker-tabs" id="tickerTabs" aria-label="Pilih instrumen"></nav>
+
+      <div class="top-actions">
+        <div class="model-badge" id="modelBadge">
+          <span class="model-dot"></span>
+          <span id="modelBadgeText">SLM-1 · memuat</span>
+        </div>
+        <button class="icon-button" id="refreshBtn" title="Muat ulang data live" aria-label="Muat ulang data live">
+          <svg><use href="/assets/sprites.svg#icon-refresh"></use></svg>
+        </button>
+        <div class="fps-meter" id="fpsMeter" title="FPS UI — mengikuti refresh rate layar (requestAnimationFrame)">
+          <span class="fps-dot"></span>
+          <span id="fpsValue">--</span>
+          <small>FPS</small>
+        </div>
+        <div class="window-controls" id="windowControls" hidden>
+          <button class="window-button" id="winMin" title="Perkecil jendela" aria-label="Perkecil jendela">
+            <svg><use href="/assets/sprites.svg#icon-minimize"></use></svg>
+          </button>
+          <button class="window-button" id="winMax" title="Perbesar jendela" aria-label="Perbesar jendela">
+            <svg><use href="/assets/sprites.svg#icon-maximize"></use></svg>
+          </button>
+          <button class="window-button window-close" id="winClose" title="Tutup aplikasi" aria-label="Tutup aplikasi">
+            <svg><use href="/assets/sprites.svg#icon-close"></use></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="primary-col">
+        <section class="panel hero-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow"><span class="live-dot"></span> Konsensus publik</p>
+              <h1 id="heroTitle">Bitcoin / USD</h1>
+            </div>
+            <div class="head-meta">
+              <span class="status-pill" id="feedPill">MEMUAT</span>
+              <span class="muted" id="lastUpdated">—</span>
+            </div>
+          </div>
+
+          <div class="conflict-banner" id="conflictBanner" hidden>
+            <svg><use href="/assets/sprites.svg#icon-warn"></use></svg>
+            <span><strong>Divergensi terdeteksi.</strong> Sumber BUY dan SELL tidak dirata-ratakan menjadi satu angka palsu.</span>
+          </div>
+
+          <div class="hero-grid">
+            <div class="radar-wrap">
+              <div class="radar-stage" id="radarStage">
+                <div class="radar-sweep"></div>
+                <div class="radar-ring ring-a"></div>
+                <div class="radar-ring ring-b"></div>
+                <div class="radar-ring ring-c"></div>
+                <div class="radar-cross cross-x"></div>
+                <div class="radar-cross cross-y"></div>
+                <span class="radar-blip blip-a"></span>
+                <span class="radar-blip blip-b"></span>
+                <div class="radar-node node-st" data-source="stocktwits" title="StockTwits">
+                  <svg><use href="/assets/sprites.svg#icon-st"></use></svg>
+                </div>
+                <div class="radar-node node-news" data-source="news" title="News Wire">
+                  <svg><use href="/assets/sprites.svg#icon-news"></use></svg>
+                </div>
+                <div class="radar-node node-wire" data-source="yahoo" title="Yahoo Wire">
+                  <svg><use href="/assets/sprites.svg#icon-wire"></use></svg>
+                </div>
+                <div class="radar-node node-forum" data-source="reddit" title="Reddit">
+                  <svg><use href="/assets/sprites.svg#icon-forum"></use></svg>
+                </div>
+                <div class="radar-node node-x" data-source="x" title="X / Twitter">
+                  <svg><use href="/assets/sprites.svg#icon-x"></use></svg>
+                </div>
+                <div class="radar-core">
+                  <span class="radar-label">RADAR</span>
+                  <strong id="radarStance">—</strong>
+                  <small id="radarConfidence">menunggu data</small>
+                </div>
+              </div>
+              <p class="radar-caption" id="radarCaption">Menghubungkan sumber publik…</p>
+            </div>
+
+            <div class="verdict-wrap">
+              <div class="gauge-wrap">
+                <svg class="gauge-svg" viewBox="0 0 260 150" role="img" aria-label="Gauge konsensus">
+                  <defs>
+                    <linearGradient id="gaugeGradient" x1="0" x2="1" y1="0" y2="0">
+                      <stop offset="0" stop-color="#ff6b6b"></stop>
+                      <stop offset=".5" stop-color="#f5b84b"></stop>
+                      <stop offset="1" stop-color="#5ce1a2"></stop>
+                    </linearGradient>
+                  </defs>
+                  <path class="gauge-track" d="M 25 124 A 105 105 0 0 1 235 124"></path>
+                  <path class="gauge-fill" id="gaugeFill" d="M 25 124 A 105 105 0 0 1 235 124"></path>
+                  <line class="gauge-needle" id="gaugeNeedle" x1="130" y1="124" x2="130" y2="40"></line>
+                  <circle class="gauge-hub" cx="130" cy="124" r="7"></circle>
+                  <text class="gauge-tick tick-sell" x="28" y="143">SELL</text>
+                  <text class="gauge-tick tick-wait" x="118" y="27">WAIT</text>
+                  <text class="gauge-tick tick-buy" x="213" y="143">BUY</text>
+                </svg>
+                <div class="gauge-center">
+                  <span class="verdict-label">Sinyal</span>
+                  <strong id="heroStance">—</strong>
+                  <span id="heroIntensity">intensitas —</span>
+                </div>
+              </div>
+              <div class="verdict-copy">
+                <div class="verdict-line">
+                  <span>Keyakinan</span>
+                  <strong id="heroConfidence">—</strong>
+                </div>
+                <div class="confidence-track"><span id="confidenceBar"></span></div>
+                <p id="verdictNote">Konsensus hanya dibuat dari sumber live yang lolos gate.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="metric-strip">
+            <div class="metric"><span>Post dianalisis</span><strong id="metricAnalyzed">—</strong></div>
+            <div class="metric"><span>Sumber live</span><strong id="metricLive">—</strong></div>
+            <div class="metric"><span>Total sampel</span><strong id="metricTotal">—</strong></div>
+            <div class="metric"><span>Latensi scan</span><strong id="metricLatency">—</strong></div>
+          </div>
+        </section>
+
+        <section class="panel sources-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Bukti per sumber</p>
+              <h2>Source matrix</h2>
+            </div>
+            <span class="mini-note">Status jujur · bukan data demo</span>
+          </div>
+          <div class="sources-grid" id="sourcesGrid">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </section>
+
+        <section class="panel gates-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Anti-halusinasi</p>
+              <h2>9 gate integritas</h2>
+            </div>
+            <span class="mini-note" id="gateSummary">—</span>
+          </div>
+          <div class="gates-list" id="gatesList"></div>
+        </section>
+      </section>
+
+      <aside class="side-col">
+        <section class="panel market-panel">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">Konteks pasar</p>
+              <h2>Market pulse</h2>
+            </div>
+            <svg class="head-icon"><use href="/assets/sprites.svg#icon-market"></use></svg>
+          </div>
+          <div class="market-hero">
+            <strong id="marketPrice">—</strong>
+            <span id="marketChange" class="change-chip neutral">—</span>
+          </div>
+          <div class="market-meta">
+            <span id="marketSource">Sumber pasar</span>
+            <span id="marketUpdated">—</span>
+          </div>
+          <div class="fear-greed" id="fearGreedBlock">
+            <div class="fg-head">
+              <span><svg class="inline-icon"><use href="/assets/sprites.svg#icon-fire"></use></svg> Fear &amp; Greed</span>
+              <strong id="fgValue">—</strong>
+            </div>
+            <div class="fg-track"><span id="fgBar"></span></div>
+            <small id="fgLabel">Hanya untuk konteks; tidak memengaruhi sentimen.</small>
+          </div>
+          <p class="market-error" id="marketError" hidden></p>
+        </section>
+
+        <section class="panel model-panel">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">Model buatan sendiri</p>
+              <h2>SLM-1 <span class="local-chip">LOKAL</span></h2>
+            </div>
+            <svg class="head-icon"><use href="/assets/sprites.svg#icon-model"></use></svg>
+          </div>
+          <p class="model-status" id="slmStatus">Memuat model…</p>
+          <div class="model-stats">
+            <div><span>Akurasi validasi</span><strong id="slmAccuracy">—</strong></div>
+            <div><span>Data latih</span><strong id="slmSamples">—</strong></div>
+            <div><span>Arsitektur</span><strong id="slmArch">—</strong></div>
+          </div>
+          <button class="primary-button wide" id="briefBtn">
+            <svg><use href="/assets/sprites.svg#icon-spark"></use></svg>
+            Buat SLM Brief
+          </button>
+          <p class="tiny-note">Model saraf lokal. Tidak memanggil Ollama atau API model eksternal.</p>
+          <div class="brief-result" id="briefResult" hidden></div>
+        </section>
+
+        <section class="panel analyzer-panel">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">Uji teks</p>
+              <h2>Analyzer</h2>
+            </div>
+            <svg class="head-icon"><use href="/assets/sprites.svg#icon-pulse"></use></svg>
+          </div>
+          <label class="field-label" for="analysisInput">Tempel post, headline, atau chat trader</label>
+          <textarea id="analysisInput" maxlength="4000" rows="5" placeholder="Contoh: Bitcoin breakout di atas resistance, volume besar, serok kawan…"></textarea>
+          <div class="analyzer-controls">
+            <label class="switch-row" for="useModel">
+              <input type="checkbox" id="useModel" checked>
+              <span class="switch"></span>
+              <span>Gunakan SLM-1</span>
+            </label>
+            <span class="char-count" id="charCount">0 / 4000</span>
+          </div>
+          <button class="primary-button wide" id="analyzeBtn">
+            <svg><use href="/assets/sprites.svg#icon-spark"></use></svg>
+            Analisis teks
+          </button>
+          <div class="analysis-result" id="analysisResult" hidden></div>
+        </section>
+
+        <section class="panel history-panel">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">Jejak audit</p>
+              <h2>Riwayat</h2>
+            </div>
+            <svg class="head-icon"><use href="/assets/sprites.svg#icon-clock"></use></svg>
+          </div>
+          <div class="history-list" id="historyList">
+            <p class="empty-state">Belum ada analisis.</p>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <span id="disclaimer">FOMO Meter adalah alat riset, bukan saran investasi.</span>
+      <span class="footer-meta">SLM-1 · lokal · <span id="footerClock">—</span></span>
+    </footer>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
