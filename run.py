@@ -110,6 +110,52 @@ def command_status(_args: argparse.Namespace) -> int:
     return 0
 
 
+def command_learn(args: argparse.Namespace) -> int:
+    from fomo_meter.engine import SentimentEngine
+    engine = SentimentEngine()
+    try:
+        text = args.text or sys.stdin.read()
+        res = engine.record_feedback(text=text, label=args.label, source="cli")
+        if args.json:
+            print(json.dumps(res, ensure_ascii=False, indent=2))
+        else:
+            if res.get("ok"):
+                print(f"[OK] {res.get('message')} (Pending feedbacks: {res.get('pending_count')})")
+                if args.retrain:
+                    print("Memulai proses auto-retrain...")
+                    retrain_res = engine.auto_retrain()
+                    if retrain_res.get("ok"):
+                        print(f"[OK] Retrain sukses! Val Accuracy: {retrain_res.get('accuracy'):.1%} | Golden: {retrain_res.get('golden_accuracy'):.1%}")
+                    else:
+                        print(f"[ERROR] Retrain gagal: {retrain_res.get('error')}")
+            else:
+                print(f"[ERROR] Gagal: {res.get('error')}")
+    finally:
+        engine.close()
+    return 0
+
+
+def command_retrain(args: argparse.Namespace) -> int:
+    from fomo_meter.engine import SentimentEngine
+    engine = SentimentEngine()
+    try:
+        print("Memulai auto-retrain Sentiment SLM...")
+        res = engine.auto_retrain()
+        if args.json:
+            print(json.dumps(res, ensure_ascii=False, indent=2))
+        else:
+            if res.get("ok"):
+                print(f"[OK] Berhasil: {res.get('message')}")
+                print(f"  Sampel: {res.get('samples')} (termasuk {res.get('feedbacks')} feedback)")
+                print(f"  Val Accuracy: {res.get('accuracy'):.1%} | Golden Benchmark: {res.get('golden_accuracy'):.1%}")
+                print(f"  Waktu latih: {res.get('elapsed_s')} detik")
+            else:
+                print(f"[ERROR] Gagal: {res.get('error')}")
+    finally:
+        engine.close()
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="fomo-meter", description="FOMO Meter desktop radar")
     parser.add_argument("--version", action="version", version="FOMO Meter 2.0.0")
@@ -138,6 +184,17 @@ def build_parser() -> argparse.ArgumentParser:
     brief.add_argument("--ticker", default="BTCUSD", choices=sorted(TICKERS))
     brief.add_argument("--json", action="store_true")
     brief.set_defaults(func=command_brief)
+
+    learn = sub.add_parser("learn", help="Simpan koreksi feedback auto-learn")
+    learn.add_argument("--text", required=True, help="Teks sampel finansial")
+    learn.add_argument("--label", required=True, choices=["BUY", "SELL", "WAIT"], help="Label yang benar")
+    learn.add_argument("--retrain", action="store_true", help="Langsung latih ulang setelah menyimpan")
+    learn.add_argument("--json", action="store_true")
+    learn.set_defaults(func=command_learn)
+
+    retrain = sub.add_parser("retrain", help="Latih ulang Sentiment SLM dari dataset + feedback")
+    retrain.add_argument("--json", action="store_true")
+    retrain.set_defaults(func=command_retrain)
 
     status = sub.add_parser("status", help="Tampilkan status engine dan model")
     status.set_defaults(func=command_status)

@@ -634,6 +634,8 @@
     if (samples) samples.textContent = available ? `${formatNumber(slm.samples)} contoh` : "—";
     if (arch) arch.textContent = slm?.architecture || "—";
     if (button) button.disabled = !available || STATE.briefLoading;
+    const retrainBtn = $("#retrainBtn");
+    if (retrainBtn) retrainBtn.disabled = !available;
   }
 
   /* -------------------------------------------------------------------- brief */
@@ -761,7 +763,64 @@
       ${terms ? `<div class="tag-row">${terms}</div>` : ""}
       ${gates ? `<div class="mini-gates">${gates}</div>` : ""}
       ${modelError}
+      <div class="feedback-box">
+        <div class="feedback-head">
+          <span>Koreksi Model (Auto-Learn):</span>
+          <small>Beri tahu arah sebenarnya</small>
+        </div>
+        <div class="feedback-actions">
+          <button type="button" class="feedback-btn buy" data-label="BUY">Koreksi BUY</button>
+          <button type="button" class="feedback-btn sell" data-label="SELL">Koreksi SELL</button>
+          <button type="button" class="feedback-btn wait" data-label="WAIT">Koreksi WAIT</button>
+        </div>
+      </div>
     `;
+
+    result.querySelectorAll(".feedback-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const label = btn.dataset.label;
+        const text = analysis.sanitized_text || analysis.input_text || $("#analysisInput")?.value || "";
+        btn.disabled = true;
+        try {
+          const resp = await api("/api/learn", {
+            method: "POST",
+            body: JSON.stringify({ text, label, source: "ui_analyzer" }),
+          });
+          showToast(resp.message || `Koreksi ${label} berhasil dicatat!`, "success");
+          await loadStatus();
+        } catch (err) {
+          showToast(err.message || "Gagal mencatat koreksi.", "error");
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  async function requestRetrain() {
+    const button = $("#retrainBtn");
+    if (!button) return;
+    button.disabled = true;
+    const originalText = button.innerHTML;
+    button.innerHTML = `${icon("icon-refresh")} Melatih ulang (~20d)…`;
+    button.classList.add("loading");
+    try {
+      const res = await api("/api/retrain", {
+        method: "POST",
+        body: JSON.stringify({ async: false }),
+      });
+      if (res.ok) {
+        showToast(`Model diperbarui! Akurasi: ${(res.accuracy * 100).toFixed(1)}% | Golden: ${(res.golden_accuracy * 100).toFixed(1)}%`, "success");
+        await loadStatus();
+      } else {
+        showToast(res.error || "Gagal melatih ulang.", "error");
+      }
+    } catch (err) {
+      showToast(err.message || "Gagal memproses auto-learn.", "error");
+    } finally {
+      button.disabled = false;
+      button.innerHTML = originalText;
+      button.classList.remove("loading");
+    }
   }
 
   /* ------------------------------------------------------------------ history */
@@ -809,6 +868,11 @@
       STATE.status = status;
       renderTickers(status.tickers || []);
       if (status.slm) renderModelStatus(status.slm);
+      if (status.auto_learner) {
+        const count = status.auto_learner.total_feedbacks || 0;
+        const el = $("#slmFeedbacks");
+        if (el) el.textContent = `${count} contoh`;
+      }
       if (status.disclaimer) $("#disclaimer").textContent = status.disclaimer;
     } catch (error) {
       showToast(error.message || "Status aplikasi gagal dimuat.", "error");
@@ -825,6 +889,7 @@
   function bindEvents() {
     $("#refreshBtn")?.addEventListener("click", () => loadScan(true));
     $("#briefBtn")?.addEventListener("click", requestBrief);
+    $("#retrainBtn")?.addEventListener("click", requestRetrain);
     $("#analyzeBtn")?.addEventListener("click", analyzeText);
     $("#analysisInput")?.addEventListener("input", (event) => {
       $("#charCount").textContent = `${event.target.value.length} / 4000`;

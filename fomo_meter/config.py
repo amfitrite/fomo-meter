@@ -167,10 +167,13 @@ NEWS_LOCALE = {"hl": "en-US", "gl": "US", "ceid": "US:en"}
 SLM_WEIGHTS = MODELS_DIR / "sentiment_slm.npz"
 SLM_META = MODELS_DIR / "sentiment_slm_meta.json"
 SLM_DATASET = DATA_DIR / "slm_training.jsonl"
+FEEDBACK_FILE = DATA_DIR / "feedback.jsonl"
+GOLDEN_FILE = DATA_DIR / "golden_set.json"
 SLM_FEATURE_DIM = 2048
 SLM_MIN_CONFIDENCE = 0.50
 SLM_VERSION = "Sentiment SLM"
 SLM_ARCHITECTURE = "Hashed n-gram features → 128 → 64 → 3 (softmax)"
+RETRAIN_MIN_GOLDEN_ACC = 0.90
 
 DISCLAIMER = (
     "FOMO Meter adalah alat riset. Data berasal dari sumber publik dan dapat "

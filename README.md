@@ -22,7 +22,8 @@ Aplikasi ini menggabungkan sumber publik nyata, gate anti-halusinasi, classifier
 | X / Twitter | Membutuhkan `X_BEARER_TOKEN`; tanpa token ditampilkan `NEEDS_AUTH` |
 | Sentiment SLM neural model | Selesai, bobot lokal tersedia |
 | Shortcut desktop **FOMO Meter** | Terpasang di Desktop Windows |
-| Tests | 23 test lulus |
+| Tests | 28 test lulus |
+| Auto-Learn & Feedback Loop | Aktif (UI & CLI), hot-reload, guarded golden benchmark |
 | Ollama / model hosted | Tidak digunakan sama sekali |
 
 ## Fitur
@@ -32,6 +33,7 @@ Aplikasi ini menggabungkan sumber publik nyata, gate anti-halusinasi, classifier
 - **Konflik tidak dirata-ratakan.** Jika sumber BUY dan SELL bertemu, radar menampilkan `CONFLICT`, bukan angka consensus palsu.
 - **Source matrix** dengan status `LIVE`, `PARTIAL`, `NO_DATA`, `NEEDS_AUTH`, atau `ERROR`, plus kutipan bukti dan URL asli.
 - **Analyzer teks** untuk post, headline, atau chat trader. Mendukung slang Indonesia seperti *serok*, *boncos*, *nyangkut*, *cut loss*, *wait and see*, serta slang Inggris.
+- **Auto-Learn & Human-in-the-Loop Feedback.** Koreksi prediksi langsung dari antarmuka Analyzer atau CLI. Sistem menyaring spam via Gate Relevansi, melatih ulang model (~20 detik), menguji akurasi terhadap `golden_set.json` (auto-rollback jika akurasi turun), lalu memuat bobot baru seketika (*hot-reload*) tanpa restart aplikasi.
 - **Brief Sentiment SLM** dari post live yang lolos gate, dengan probabilitas BUY/SELL/WAIT, driver leksikon, bukti verbatim, dan disclaimer.
 - **Market pulse** sebagai konteks: harga, perubahan, dan Fear & Greed. Konteks pasar tidak mengubah arah sentimen.
 - **Riwayat audit** analisis teks, brief, dan teks yang ditolak gate.
@@ -82,6 +84,8 @@ Buka `http://127.0.0.1:8085/`. Server hanya bind ke loopback dan tidak terbuka k
 python run.py scan --ticker BTCUSD
 python run.py analyze --text "Bitcoin breakout, serok tipis-tipis" --model
 python run.py brief --ticker BTCUSD
+python run.py learn --text "Bitcoin breakout gila, serok kawan" --label BUY --retrain
+python run.py retrain
 python run.py status
 ```
 

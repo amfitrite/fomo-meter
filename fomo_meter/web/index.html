@@ -219,10 +219,15 @@
             <div><span>Akurasi validasi</span><strong id="slmAccuracy">—</strong></div>
             <div><span>Data latih</span><strong id="slmSamples">—</strong></div>
             <div><span>Arsitektur</span><strong id="slmArch">—</strong></div>
+            <div><span>Feedback Auto-Learn</span><strong id="slmFeedbacks">0 contoh</strong></div>
           </div>
           <button class="primary-button wide" id="briefBtn">
             <svg><use href="/assets/sprites.svg#icon-spark"></use></svg>
             Buat Brief
+          </button>
+          <button class="secondary-button wide" id="retrainBtn" style="margin-top:8px; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <svg style="width:14px;height:14px;"><use href="/assets/sprites.svg#icon-refresh"></use></svg>
+            Latih Ulang (Auto-Learn)
           </button>
           <p class="tiny-note">Model saraf lokal. Tidak memanggil Ollama atau API model eksternal.</p>
           <div class="brief-result" id="briefResult" hidden></div>

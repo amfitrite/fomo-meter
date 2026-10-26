@@ -110,6 +110,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 brief = self.engine.slm_brief(ticker)
                 self._send_json(brief.model_dump(mode="json"))
                 return
+            if path == "/api/learn/stats":
+                self._send_json(self.engine.learner.get_stats())
+                return
             self._send_json({"error": "Endpoint API tidak ditemukan."}, HTTPStatus.NOT_FOUND)
         except ValueError as exc:
             self._send_json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
@@ -141,6 +144,27 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 ticker = str(payload.get("ticker") or "BTCUSD")
                 force = bool(payload.get("force", False))
                 self._send_json(self.engine.scan(ticker, force=force).model_dump(mode="json"))
+                return
+            if path == "/api/learn":
+                text = str(payload.get("text") or "")
+                label = str(payload.get("label") or "")
+                source = str(payload.get("source") or "ui_correction")
+                auto_retrain_threshold = int(payload.get("auto_retrain_threshold") or 0)
+                result = self.engine.record_feedback(
+                    text=text, label=label, source=source, auto_retrain_threshold=auto_retrain_threshold
+                )
+                status_code = HTTPStatus.OK if result.get("ok") else HTTPStatus.BAD_REQUEST
+                self._send_json(result, status_code)
+                return
+            if path == "/api/retrain":
+                async_mode = bool(payload.get("async", False))
+                if async_mode:
+                    self.engine.learner.retrain_in_background()
+                    self._send_json({"ok": True, "message": "Proses retrain telah dimulai di background."})
+                else:
+                    result = self.engine.auto_retrain()
+                    status_code = HTTPStatus.OK if result.get("ok") else HTTPStatus.BAD_REQUEST
+                    self._send_json(result, status_code)
                 return
             self._send_json({"error": "Endpoint API tidak ditemukan."}, HTTPStatus.NOT_FOUND)
         except ValueError as exc:

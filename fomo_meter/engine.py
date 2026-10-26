@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
 from fomo_meter.anti_halu_gates import AntiHallucinationVerifier
+from fomo_meter.auto_learner import AutoLearner
 from fomo_meter.classifier import FastCrowdClassifier
 from fomo_meter.config import (
     DISCLAIMER,
@@ -88,6 +89,7 @@ class SentimentEngine:
         self.sources = build_default_sources(self.classifier, self.relevance_gate)
         self.market_source = MarketSource()
         self.slm = SentimentSLM()
+        self.learner = AutoLearner(self.data_dir, self.slm, self.relevance_gate)
         self._scan_cache: Dict[str, Tuple[float, ScanResult]] = {}
         self._cache_lock = threading.RLock()
         self._history_lock = threading.RLock()
@@ -616,9 +618,19 @@ class SentimentEngine:
                 for key, value in TICKERS.items()
             ],
             "slm": self.slm.status().model_dump(),
+            "auto_learner": self.learner.get_stats(),
             "disclaimer": DISCLAIMER,
             "history_count": len(self.history(limit=MAX_HISTORY)),
         }
+
+    # ----------------------------------------------------------- auto learner
+    def record_feedback(
+        self, text: str, label: str, source: str = "user_feedback", auto_retrain_threshold: int = 0
+    ) -> Dict[str, Any]:
+        return self.learner.record_feedback(text, label, source, auto_retrain_threshold)
+
+    def auto_retrain(self) -> Dict[str, Any]:
+        return self.learner.retrain()
 
     def close(self) -> None:
         for source in self.sources:

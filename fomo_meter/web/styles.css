@@ -629,6 +629,63 @@ textarea:focus { border-color: rgba(70, 217, 207, .38); box-shadow: 0 0 0 3px rg
 .model-panel .primary-button.wide { margin-bottom: 0; }
 .primary-button.loading svg { animation: spin .9s linear infinite; }
 
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  color: var(--text);
+  background: var(--panel-raised);
+  font-size: 10.5px;
+  font-weight: 600;
+  transition: all .16s ease;
+}
+.secondary-button:hover { background: rgba(70, 217, 207, .12); border-color: var(--cyan); color: var(--cyan); }
+.secondary-button:disabled { opacity: .5; cursor: wait; }
+.secondary-button.wide { width: calc(100% - 36px); margin: 0 18px 0; }
+
+.feedback-box {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  background: rgba(14, 22, 31, .6);
+}
+.feedback-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9.5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.feedback-actions {
+  display: flex;
+  gap: 6px;
+}
+.feedback-btn {
+  flex: 1;
+  padding: 6px 4px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel-solid);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.feedback-btn.buy { color: var(--green); border-color: rgba(92, 225, 162, .25); }
+.feedback-btn.buy:hover { background: rgba(92, 225, 162, .18); border-color: var(--green); }
+.feedback-btn.sell { color: var(--red); border-color: rgba(255, 115, 115, .25); }
+.feedback-btn.sell:hover { background: rgba(255, 115, 115, .18); border-color: var(--red); }
+.feedback-btn.wait { color: var(--amber); border-color: rgba(245, 184, 75, .25); }
+.feedback-btn.wait:hover { background: rgba(245, 184, 75, .18); border-color: var(--amber); }
+.feedback-btn:disabled { opacity: .5; cursor: not-allowed; }
+
 .analysis-result, .brief-result { margin: 13px 18px 18px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(4, 9, 13, .26); }
 .result-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .result-stance { font-family: var(--mono); font-size: 20px; font-weight: 600; }
