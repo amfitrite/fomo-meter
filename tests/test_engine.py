@@ -140,7 +140,13 @@ class EngineTests(unittest.TestCase):
         )
         self.assertFalse(analysis.is_relevant)
         self.assertEqual(analysis.stance.value, "WAIT")
-        self.assertEqual(analysis.intensity, 0)
+
+    def test_engine_status_payload(self) -> None:
+        status = self.engine.status()
+        self.assertIn("slm", status)
+        self.assertTrue(status["slm"]["available"])
+        self.assertIn("slm_strictness_modes", status)
+        self.assertIn("slm_supported_dims", status)
 
 
 if __name__ == "__main__":

@@ -28,6 +28,7 @@ from fomo_meter.config import (
     SLM_DEFAULT_STRICTNESS,
     SLM_MIN_CONFIDENCE,
     SLM_STRICTNESS_MODES,
+    SLM_SUPPORTED_DIMS,
     STALE_AFTER,
     TICKERS,
     ensure_dirs,
