@@ -823,11 +823,15 @@ textarea:focus { border-color: rgba(70, 217, 207, .38); box-shadow: 0 0 0 3px rg
 }
 .feed-featured-meta {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 7px;
   margin-top: 6px;
   font-size: 8.5px;
   color: var(--faint);
+}
+.feed-featured-meta svg {
+  width: 10px;
+  height: 10px;
 }
 .feed-pill {
   font-family: var(--mono);

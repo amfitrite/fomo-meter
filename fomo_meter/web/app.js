@@ -559,9 +559,6 @@
           <div class="feed-featured-meta">
             <span class="feed-pill ${postStance}">${postStance.toUpperCase()}</span>
             <span class="feed-featured-time" id="featuredTime_${escapeHtml(source.id)}">${timeAgo(activePost.created_at)}</span>
-            <a href="${escapeHtml(postUrl)}" target="_blank" rel="noopener noreferrer" id="featuredLink_${escapeHtml(source.id)}">
-              ${icon("icon-external")} bukti asli
-            </a>
           </div>
         </div>
         <div class="feed-scrollable" title="Gulir untuk membaca semua kalimat hasil scraper">
@@ -644,14 +641,11 @@
 
       const textEl = $(`#featuredText_${source.id}`);
       const timeEl = $(`#featuredTime_${source.id}`);
-      const linkEl = $(`#featuredLink_${source.id}`);
       const featuredBox = $(`#featured_${source.id}`);
-      const postUrl = safeUrl(post.url || source.evidence_url || source.provenance);
       const postStance = String(post.user_sentiment || source.stance || "WAIT").toLowerCase();
 
       if (textEl) textEl.textContent = `“${post.text}”`;
       if (timeEl) timeEl.textContent = timeAgo(post.created_at);
-      if (linkEl) linkEl.href = postUrl;
 
       if (featuredBox) {
         const pill = featuredBox.querySelector(".feed-pill");
