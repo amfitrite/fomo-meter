@@ -20,7 +20,7 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 from typing import Any, Dict, List, Optional
 
-from fomo_meter.config import NEWS_LOCALE, REQUEST_TIMEOUT, TICKERS
+from fomo_meter.config import GOOGLE_NEWS_BASE_URL, NEWS_LOCALE, REQUEST_TIMEOUT, TICKERS
 from fomo_meter.schema import Post, SourceResult, SourceStatus
 from fomo_meter.sources.analysis import aggregate_posts
 from fomo_meter.sources.base import BaseSource, SourceFetchError
@@ -168,7 +168,7 @@ class RedditSource(BaseSource):
             "gl": NEWS_LOCALE["gl"],
             "ceid": NEWS_LOCALE["ceid"],
         }
-        wire_url = "https://news.google.com/rss/search?" + urllib.parse.urlencode(params)
+        wire_url = f"{GOOGLE_NEWS_BASE_URL}?" + urllib.parse.urlencode(params)
         try:
             wire_resp = self.session.get(wire_url, timeout=REQUEST_TIMEOUT)
             if wire_resp.status_code == 200 and wire_resp.text:

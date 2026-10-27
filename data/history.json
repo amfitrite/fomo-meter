@@ -158,5 +158,25 @@
     "text": "Sentiment SLM menganalisis 16 post live dari 3 sumber. Distribusi model: 8 BUY, 8 SELL, 0 WAIT. Probabilitas rata-rata: BUY 48%, SELL 51%, WAIT 1%. Driver lexicon: watch, crash, breakout, slipping, plunge, war, wait, hold. Radar menandai konflik antar-sumber; brief ini tidak meng",
     "engine": "sentiment_slm",
     "model": "Sentiment SLM"
+  },
+  {
+    "timestamp": 1793106420.9908178,
+    "kind": "text",
+    "ticker": null,
+    "stance": "BUY",
+    "intensity": 89,
+    "text": "xauusd",
+    "engine": "sentiment_slm",
+    "model": "Sentiment SLM"
+  },
+  {
+    "timestamp": 1793106828.474706,
+    "kind": "text",
+    "ticker": null,
+    "stance": "BUY",
+    "intensity": 89,
+    "text": "xauusd",
+    "engine": "sentiment_slm",
+    "model": "Sentiment SLM"
   }
 ]

@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import List, Optional
 
-from fomo_meter.config import NEWS_LOCALE, REQUEST_TIMEOUT, TICKERS
+from fomo_meter.config import GOOGLE_NEWS_BASE_URL, NEWS_LOCALE, REQUEST_TIMEOUT, TICKERS
 from fomo_meter.schema import Post, SourceResult, SourceStatus
 from fomo_meter.sources.analysis import aggregate_posts
 from fomo_meter.sources.base import BaseSource, SourceFetchError
@@ -30,7 +30,7 @@ def build_news_url(ticker: str) -> str:
         "gl": NEWS_LOCALE["gl"],
         "ceid": NEWS_LOCALE["ceid"],
     }
-    return "https://news.google.com/rss/search?" + urllib.parse.urlencode(params)
+    return f"{GOOGLE_NEWS_BASE_URL}?" + urllib.parse.urlencode(params)
 
 
 def _parse_pub_date(value: Optional[str]) -> Optional[float]:

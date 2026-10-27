@@ -19,7 +19,7 @@ Aplikasi ini menggabungkan sumber publik nyata, gate anti-halusinasi, classifier
 | Sumber live Google News + Yahoo Finance | Selesai dan teruji |
 | StockTwits publik | Live, tetapi dapat diblokir Cloudflare (HTTP 403) secara intermiten |
 | Reddit publik | Live via Community Wire (fallback otomatis saat direct API 403) |
-| X / Twitter | Membutuhkan `X_BEARER_TOKEN`; tanpa token ditampilkan `NEEDS_AUTH` |
+| X / Twitter | Live via X Proxy Wire (Google News) atau X API Bearer Token |
 | Sentiment SLM neural model | Selesai, bobot lokal tersedia |
 | Shortcut desktop **FOMO Meter** | Terpasang di Desktop Windows |
 | Tests | 28 test lulus |
@@ -167,7 +167,7 @@ Angka di atas adalah hasil benchmark kecil pada dataset kurasi, bukan jaminan pe
 | Google News RSS | Tidak | Headline finansial 48 jam terakhir. |
 | Yahoo Finance RSS | Tidak | Headline per simbol, 72 jam terakhir. |
 | Reddit | Opsional (`REDDIT_CLIENT_ID` + `REDDIT_CLIENT_SECRET`) | Otomatis fallback ke Reddit Community Wire jika endpoint direct diblokir 403. |
-| X / Twitter | `X_BEARER_TOKEN` | Tanpa token, status `NEEDS_AUTH`. |
+| X / Twitter | Opsional (`X_BEARER_TOKEN`) | Otomatis fallback ke X Proxy Wire (Google News Syndication) jika tanpa token. |
 | CoinGecko / Yahoo Finance | Tidak | Harga pasar, hanya konteks. |
 | alternative.me | Tidak | Fear & Greed untuk crypto, hanya konteks. |
 

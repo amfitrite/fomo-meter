@@ -153,12 +153,15 @@ SOURCE_META: List[Dict[str, Any]] = [
         "name": "X / Twitter",
         "icon": "X",
         "kind": "Social",
-        "description": "Memerlukan X API Bearer Token melalui environment variable.",
-        "requires_auth": True,
+        "description": "Live via X Proxy Wire (Google News) atau X API Bearer Token.",
+        "requires_auth": False,
     },
 ]
 
+# Google News Syndication & RSS Primitives -----------------------------------
+GOOGLE_NEWS_BASE_URL = "https://news.google.com/rss/search"
 NEWS_LOCALE = {"hl": "en-US", "gl": "US", "ceid": "US:en"}
+X_PROXY_ENABLED = True
 
 # In-house neural model (Sentiment SLM) ---------------------------------------------
 # This is not a wrapper around Ollama, OpenAI, or any hosted model. The small
