@@ -147,6 +147,24 @@ Angka di atas adalah hasil benchmark kecil pada dataset kurasi, bukan jaminan pe
 3. Jika keduanya tidak sepakat dan model belum cukup yakin, hasil lexicon dipakai dan alasan fallback ditampilkan.
 4. Brief hanya memakai post yang lolos relevance gate; bukti yang dipilih adalah substring verbatim.
 
+### Web-Grounded Autonomous Learning (Blueprint & Arsitektur)
+
+Mengadopsi paradigma **Search-Grounded Continual Learning** ala Google Gemini / Search Generative Experience untuk menjaga model tetap mutakhir terhadap istilah & slang pasar baru:
+
+1. **Trigger Otonom**: Saat Sentiment SLM mendeteksi istilah baru atau menghasilkan keyakinan rendah (*confidence* < 65%), sistem memicu *background discovery worker* secara asinkron tanpa memblokir thread UI ($0\text{ ms}$ dampak ke FPS/rendering).
+2. **Trading-Only Domain Firewall (3 Lapis Ketat)**:
+   - **Lapis 1 (Pre-Search Gate)**: Kalimat wajib lolos `FinancialRelevanceGate`. Topik umum non-pasar (hiburan, politik umum, obrolan santai) langsung ditolak tanpa pencarian internet.
+   - **Lapis 2 (Domain-Scoped Search)**: Query pencarian dikunci ke ranah pasar modal dan aset kripto (`"{term}" (trading OR "crypto market" OR "stock price" OR chart)`).
+   - **Lapis 3 (Snippet Financial Gate)**: Snippet hasil pencarian wajib mengandung minimal 2 indikator pasar finansial nyata. Artikel yang membahas konteks di luar trading dibuang seketika.
+3. **Multi-Tier Search Engine (Resilient & Tanpa API Key Berbayar)**:
+   - **Tier 1 (Utama)**: Google News RSS Syndication (resmi, bebas blokir, anti-captcha, berita terkurasi).
+   - **Tier 2 (Fallback Berita)**: Yahoo Finance Search API (respons JSON terstruktur pasar modal).
+   - **Tier 3 (Fallback Definisi)**: Wikipedia / Wiktionary REST API (definisi analisis teknikal formal, bebas blokir, tanpa batas rate limit).
+   - **Tier 4 (Fallback Web)**: DuckDuckGo Lite Engine (HTML statis ringan).
+4. **Pencegahan Lupa Pola Lama (*Anti-Catastrophic Forgetting*)**:
+   - Istilah baru diserap dari 1 sumber teratas kredibel bersama bukti kutipan dan URL aslinya (*provenance*).
+   - Pelatihan ulang lokal (~20 detik di CPU) selalu menyertakan *Golden Anchor Dataset* (`data/golden_set.json`). Jika akurasi benchmark turun, sistem melakukan rollback otomatis. Bobot baru kemudian dimuat seketika (*hot-reloaded*).
+
 ## 9 gate anti-halusinasi
 
 1. **G1 Sumber live tersedia** — tidak ada konsensus tanpa sumber live.
