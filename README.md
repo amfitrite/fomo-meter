@@ -18,7 +18,7 @@ Aplikasi ini menggabungkan sumber publik nyata, gate anti-halusinasi, classifier
 | Dashboard lokal 127.0.0.1 | Selesai |
 | Sumber live Google News + Yahoo Finance | Selesai dan teruji |
 | StockTwits publik | Live, tetapi dapat diblokir Cloudflare (HTTP 403) secara intermiten |
-| Reddit publik | HTTP 403 dari jaringan ini; ditampilkan jujur sebagai ERROR |
+| Reddit publik | Live via Community Wire (fallback otomatis saat direct API 403) |
 | X / Twitter | Membutuhkan `X_BEARER_TOKEN`; tanpa token ditampilkan `NEEDS_AUTH` |
 | Sentiment SLM neural model | Selesai, bobot lokal tersedia |
 | Shortcut desktop **FOMO Meter** | Terpasang di Desktop Windows |
@@ -166,7 +166,7 @@ Angka di atas adalah hasil benchmark kecil pada dataset kurasi, bukan jaminan pe
 | StockTwits | Tidak | Endpoint publik dapat mengembalikan HTTP 403 dari Cloudflare. Aplikasi menampilkan ERROR, bukan data palsu. |
 | Google News RSS | Tidak | Headline finansial 48 jam terakhir. |
 | Yahoo Finance RSS | Tidak | Headline per simbol, 72 jam terakhir. |
-| Reddit | Tidak | Sering 403 dari jaringan ini; status ditampilkan jujur. |
+| Reddit | Opsional (`REDDIT_CLIENT_ID` + `REDDIT_CLIENT_SECRET`) | Otomatis fallback ke Reddit Community Wire jika endpoint direct diblokir 403. |
 | X / Twitter | `X_BEARER_TOKEN` | Tanpa token, status `NEEDS_AUTH`. |
 | CoinGecko / Yahoo Finance | Tidak | Harga pasar, hanya konteks. |
 | alternative.me | Tidak | Fear & Greed untuk crypto, hanya konteks. |
