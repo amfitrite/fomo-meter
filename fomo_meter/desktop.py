@@ -226,11 +226,23 @@ class MainWindow(QMainWindow):
 def run_desktop() -> int:
     ensure_dirs()
     configure_logging()
+    try:
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(f"FOMOMeter.App.{APP_VERSION}")
+    except Exception:
+        pass
+
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setApplicationVersion(APP_VERSION)
     app.setOrganizationName(APP_NAME)
     app.setStyle("Fusion")
+
+    icon_path = ASSETS_DIR / "fomo_meter.ico"
+    if not icon_path.exists():
+        icon_path = ASSETS_DIR / "fomo_meter_256.png"
+    if icon_path.exists():
+        app.setWindowIcon(QIcon(str(icon_path)))
 
     server = DashboardServer()
     try:
