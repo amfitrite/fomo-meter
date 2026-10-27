@@ -317,6 +317,25 @@
         </div>
 
         <div class="settings-group">
+          <label class="settings-label">🎯 Sensitivitas Keyakinan Model (Confidence Strictness)</label>
+          <p class="settings-hint">Ambang batas bagi Sentiment SLM untuk menyimpulkan BUY/SELL vs berhati-hati (WAIT).</p>
+          <div class="settings-pill-group" id="slmStrictnessGroup">
+            <button type="button" class="settings-pill active" data-strictness="aggressive">Agresif (Default · &ge;50%)</button>
+            <button type="button" class="settings-pill" data-strictness="moderate">Moderat (&ge;65%)</button>
+            <button type="button" class="settings-pill" data-strictness="skeptical">Skeptis (&ge;80%)</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label class="settings-label">🧬 Kapasitas Dimensi Fitur Neural SLM</label>
+          <p class="settings-hint">Ruang embedding n-gram untuk menyerap kosakata &amp; slang trading baru.</p>
+          <div class="settings-pill-group" id="slmDimGroup">
+            <button type="button" class="settings-pill active" data-dim="2048">2048 Dimensi (Default · Cepat)</button>
+            <button type="button" class="settings-pill" data-dim="4096">4096 Dimensi (Ekspansif)</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
           <label class="settings-label">⏸️ Perilaku Interaksi</label>
           <label class="switch-row" for="hoverPauseToggle" style="margin-top:6px;">
             <input type="checkbox" id="hoverPauseToggle" checked>

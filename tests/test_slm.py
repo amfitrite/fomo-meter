@@ -57,6 +57,12 @@ class SLMTests(unittest.TestCase):
             self.assertEqual(batch_pred.intensity, individual_pred.intensity)
             self.assertAlmostEqual(batch_pred.confidence, individual_pred.confidence, places=3)
 
+    def test_sarcasm_incongruity_features(self) -> None:
+        from fomo_meter.slm_features import feature_weights
+        features = feature_weights("Buy the top right here clown lol")
+        self.assertIn("sarcasm:mockery_bullish", features)
+        self.assertIn("sarcasm:incongruity", features)
+
 
 if __name__ == "__main__":
     unittest.main()

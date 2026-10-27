@@ -37,6 +37,20 @@ _CASHTAG_RE = re.compile(r"\$([a-z0-9.]+)", re.IGNORECASE)
 _NUMBER_RE = re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:k|m|b|%|x)?\b", re.IGNORECASE)
 
 
+# Google-style Sarcasm & Contrastive Incongruity Markers ---------------------
+HYPER_BULLISH_MARKERS = (
+    "all in", "to the moon", "moon", "generational wealth", "easy money",
+    "cant lose", "cannot lose", "financial advice", "guaranteed", "buy the top",
+    "serok pucuk", "allin", "never selling", "diamond hands",
+)
+
+SARCASM_MOCKERY_MARKERS = (
+    "clown", "clowns", "🤡", "rip", "💀", "hfsp", "have fun staying poor",
+    "copium", "exit liquidity", "bagholder", "bagholders", "top buyer",
+    "top buyers", "lol", "lmao", "rofl", "sure buddy", "good luck with that",
+)
+
+
 def tokenize(text: str) -> Tuple[List[str], List[str]]:
     """Return (word tokens, emoji tokens)."""
     normalized = normalize_text(text)
@@ -93,6 +107,16 @@ def feature_weights(text: str) -> Dict[str, float]:
     bucket = "short" if length <= 4 else ("medium" if length <= 12 else "long")
     _add(features, f"len:{bucket}", 0.5)
     _add(features, "question" if "?" in text else "statement", 0.25)
+
+    # Google-style Contextual Incongruity Sarcasm Detection ----------------
+    lower_raw = text.lower()
+    has_hyper_bull = any(marker in lower_raw for marker in HYPER_BULLISH_MARKERS)
+    has_mockery = any(marker in lower_raw for marker in SARCASM_MOCKERY_MARKERS)
+    if has_hyper_bull and has_mockery:
+        _add(features, "sarcasm:mockery_bullish", 3.2)
+        _add(features, "sarcasm:incongruity", 2.6)
+        _add(features, "neg:bullish_intent", 2.2)
+
     return features
 
 

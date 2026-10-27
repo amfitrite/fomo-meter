@@ -9,6 +9,8 @@
     dripInterval: Number(localStorage.getItem("fomo_drip_interval") || 15),
     networkInterval: Number(localStorage.getItem("fomo_network_interval") || 60),
     hoverPause: localStorage.getItem("fomo_hover_pause") !== "false",
+    slmStrictness: localStorage.getItem("fomo_slm_strictness") || "aggressive",
+    slmDim: Number(localStorage.getItem("fomo_slm_dim") || 2048),
   };
 
   const DRIP_STATE = {
@@ -863,7 +865,7 @@
     try {
       const analysis = await api("/api/analyze", {
         method: "POST",
-        body: JSON.stringify({ text, use_model: STATE.useModel }),
+        body: JSON.stringify({ text, use_model: STATE.useModel, strictness: SETTINGS.slmStrictness }),
       });
       renderAnalysis(analysis);
       loadHistory();
@@ -1063,6 +1065,12 @@
       $$("#networkIntervalGroup .settings-pill").forEach((pill) => {
         pill.classList.toggle("active", Number(pill.dataset.seconds) === SETTINGS.networkInterval);
       });
+      $$("#slmStrictnessGroup .settings-pill").forEach((pill) => {
+        pill.classList.toggle("active", pill.dataset.strictness === SETTINGS.slmStrictness);
+      });
+      $$("#slmDimGroup .settings-pill").forEach((pill) => {
+        pill.classList.toggle("active", Number(pill.dataset.dim) === SETTINGS.slmDim);
+      });
       if (hoverToggle) hoverToggle.checked = SETTINGS.hoverPause;
       modal.hidden = false;
     }
@@ -1091,9 +1099,26 @@
       });
     });
 
+    $$("#slmStrictnessGroup .settings-pill").forEach((pill) => {
+      pill.addEventListener("click", () => {
+        $$("#slmStrictnessGroup .settings-pill").forEach((p) => p.classList.remove("active"));
+        pill.classList.add("active");
+      });
+    });
+
+    $$("#slmDimGroup .settings-pill").forEach((pill) => {
+      pill.addEventListener("click", () => {
+        $$("#slmDimGroup .settings-pill").forEach((p) => p.classList.remove("active"));
+        pill.classList.add("active");
+      });
+    });
+
     saveBtn?.addEventListener("click", () => {
       const activeDrip = $("#dripIntervalGroup .settings-pill.active");
       const activeNet = $("#networkIntervalGroup .settings-pill.active");
+      const activeStrict = $("#slmStrictnessGroup .settings-pill.active");
+      const activeDim = $("#slmDimGroup .settings-pill.active");
+
       if (activeDrip) {
         SETTINGS.dripInterval = Number(activeDrip.dataset.seconds);
         localStorage.setItem("fomo_drip_interval", SETTINGS.dripInterval);
@@ -1101,6 +1126,14 @@
       if (activeNet) {
         SETTINGS.networkInterval = Number(activeNet.dataset.seconds);
         localStorage.setItem("fomo_network_interval", SETTINGS.networkInterval);
+      }
+      if (activeStrict) {
+        SETTINGS.slmStrictness = activeStrict.dataset.strictness;
+        localStorage.setItem("fomo_slm_strictness", SETTINGS.slmStrictness);
+      }
+      if (activeDim) {
+        SETTINGS.slmDim = Number(activeDim.dataset.dim);
+        localStorage.setItem("fomo_slm_dim", SETTINGS.slmDim);
       }
       if (hoverToggle) {
         SETTINGS.hoverPause = hoverToggle.checked;
@@ -1110,7 +1143,7 @@
       initDripEngine();
       restartNetworkPolling();
       closeModal();
-      showToast(`Pengaturan disimpan: Drip ${SETTINGS.dripInterval}s, Jaringan ${SETTINGS.networkInterval}s`, "success");
+      showToast(`Pengaturan disimpan: Drip ${SETTINGS.dripInterval}s, SLM: ${SETTINGS.slmStrictness}`, "success");
     });
   }
 

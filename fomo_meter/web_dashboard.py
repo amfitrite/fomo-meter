@@ -136,7 +136,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
             if path == "/api/analyze":
                 text = str(payload.get("text") or "")
                 use_model = bool(payload.get("use_model", False))
-                result = self.engine.analyze_text(text, use_model=use_model)
+                strictness = payload.get("strictness")
+                result = self.engine.analyze_text(text, use_model=use_model, strictness=strictness)
                 self._send_json(result.model_dump(mode="json"))
                 return
             if path == "/api/brief":

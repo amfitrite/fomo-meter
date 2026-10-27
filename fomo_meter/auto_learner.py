@@ -452,14 +452,16 @@ class AutoLearner:
                 self._last_training_result = result
                 return result
 
-            # 4. Save and Hot-Reload
+            # 4. Save and Hot-Reload (Atomic File Swap to prevent Windows file lock collisions)
             self.weights_file.parent.mkdir(parents=True, exist_ok=True)
+            temp_weights = self.weights_file.with_suffix(".tmp.npz")
             np.savez_compressed(
-                self.weights_file,
+                temp_weights,
                 W1=best_params["W1"], b1=best_params["b1"],
                 W2=best_params["W2"], b2=best_params["b2"],
                 W3=best_params["W3"], b3=best_params["b3"],
             )
+            temp_weights.replace(self.weights_file)
 
             elapsed = round(time.perf_counter() - started, 2)
             meta = {
@@ -484,9 +486,11 @@ class AutoLearner:
                 "training_seconds": elapsed,
                 "notes": f"Auto-learned with {len(feedback_rows)} user feedback examples. Safe rollback guard passed.",
             }
-            with self.meta_file.open("w", encoding="utf-8", newline="\n") as handle:
+            temp_meta = self.meta_file.with_suffix(".tmp.json")
+            with temp_meta.open("w", encoding="utf-8", newline="\n") as handle:
                 json.dump(meta, handle, ensure_ascii=False, indent=2)
                 handle.write("\n")
+            temp_meta.replace(self.meta_file)
 
             # HOT-RELOAD in memory!
             if self.slm:

@@ -25,11 +25,14 @@ from fomo_meter.config import (
     MAX_HISTORY,
     MAX_TEXT_LENGTH,
     SCAN_CACHE_TTL,
+    SLM_DEFAULT_STRICTNESS,
     SLM_MIN_CONFIDENCE,
+    SLM_STRICTNESS_MODES,
     STALE_AFTER,
     TICKERS,
     ensure_dirs,
 )
+from fomo_meter.grounding import TradingGrounder
 from fomo_meter.relevance_gate import FinancialRelevanceGate
 from fomo_meter.schema import (
     AnalysisResult,
@@ -90,6 +93,7 @@ class SentimentEngine:
         self.market_source = MarketSource()
         self.slm = SentimentSLM()
         self.learner = AutoLearner(self.data_dir, self.slm, self.relevance_gate)
+        self.grounder = TradingGrounder(self.relevance_gate)
         self._scan_cache: Dict[str, Tuple[float, ScanResult]] = {}
         self._cache_lock = threading.RLock()
         self._history_lock = threading.RLock()
@@ -361,8 +365,32 @@ class SentimentEngine:
             gates.append(_gate("G9", GateState.WARN, "Tidak ada payload live; aplikasi tidak mengganti dengan data demo."))
         return gates
 
+    def _trigger_background_grounding(self, text: str) -> None:
+        def _worker() -> None:
+            terms = self.grounder.extract_candidate_terms(text)
+            for term in terms:
+                res = self.grounder.ground_term(term)
+                if res and res.stance in (Stance.BUY, Stance.SELL):
+                    LOGGER.info(
+                        "[SLM-DISCOVERY] Pembelajaran mandiri untuk istilah '%s' -> %s dari %s",
+                        term, res.stance.value, res.source_engine,
+                    )
+                    self.learner.record_feedback(
+                        text=f"{term}: {res.evidence_quote}",
+                        label=res.stance.value,
+                        source=f"web_grounding:{res.source_engine}",
+                        auto_retrain_threshold=5,
+                    )
+        threading.Thread(target=_worker, daemon=True, name="slm-grounding-worker").start()
+
     # ---------------------------------------------------------------- analyze
-    def analyze_text(self, text: str, use_model: bool = False, record: bool = True) -> AnalysisResult:
+    def analyze_text(
+        self,
+        text: str,
+        use_model: bool = False,
+        record: bool = True,
+        strictness: Optional[str | float] = None,
+    ) -> AnalysisResult:
         started = time.perf_counter()
         raw = (text or "")[:MAX_TEXT_LENGTH]
         decision = self.relevance_gate.evaluate(raw)
@@ -403,6 +431,13 @@ class SentimentEngine:
         model_error: Optional[str] = None
         model_gate = _gate("G3", GateState.SKIP, "Sentiment SLM tidak diminta untuk analisis ini.")
 
+        threshold = SLM_MIN_CONFIDENCE
+        if strictness:
+            if isinstance(strictness, (int, float)):
+                threshold = float(strictness)
+            elif isinstance(strictness, str) and strictness.lower() in SLM_STRICTNESS_MODES:
+                threshold = SLM_STRICTNESS_MODES[strictness.lower()]
+
         if use_model:
             if not self.slm.available:
                 model_error = self.slm.error or "Sentiment SLM belum tersedia."
@@ -413,7 +448,7 @@ class SentimentEngine:
                     probabilities = prediction.probabilities
                     model = prediction.model
                     agrees = prediction.stance == baseline.stance
-                    confident = prediction.confidence >= SLM_MIN_CONFIDENCE
+                    confident = prediction.confidence >= threshold
                     if agrees or confident:
                         stance = prediction.stance
                         intensity = prediction.intensity
@@ -434,7 +469,7 @@ class SentimentEngine:
                     else:
                         model_error = (
                             f"Sentiment SLM confidence {prediction.confidence:.0%} di bawah ambang "
-                            f"{SLM_MIN_CONFIDENCE:.0%}; memakai lexicon baseline."
+                            f"{threshold:.0%}; memakai lexicon baseline."
                         )
                         model_gate = _gate("G3", GateState.WARN, model_error)
                         reasoning = (
@@ -442,6 +477,7 @@ class SentimentEngine:
                             f"{prediction.confidence:.0%} belum cukup. Lexicon baseline "
                             f"{baseline.stance.value} dipakai agar tidak memaksakan arah."
                         )
+                        self._trigger_background_grounding(clean)
                 except SLMUnavailable as exc:
                     model_error = str(exc)
                     model_gate = _gate("G3", GateState.WARN, f"Sentiment SLM gagal: {model_error}")
@@ -619,6 +655,9 @@ class SentimentEngine:
                 for key, value in TICKERS.items()
             ],
             "slm": self.slm.status().model_dump(),
+            "slm_strictness_modes": SLM_STRICTNESS_MODES,
+            "slm_default_strictness": SLM_DEFAULT_STRICTNESS,
+            "slm_supported_dims": list(SLM_SUPPORTED_DIMS),
             "auto_learner": self.learner.get_stats(),
             "disclaimer": DISCLAIMER,
             "history_count": len(self.history(limit=MAX_HISTORY)),

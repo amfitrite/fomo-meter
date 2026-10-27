@@ -178,6 +178,14 @@ FEEDBACK_FILE = DATA_DIR / "feedback.jsonl"
 GOLDEN_FILE = DATA_DIR / "golden_set.json"
 SLM_FEATURE_DIM = 2048
 SLM_MIN_CONFIDENCE = 0.50
+SLM_STRICTNESS_MODES = {
+    "aggressive": 0.50,
+    "moderate": 0.65,
+    "skeptical": 0.80,
+}
+SLM_DEFAULT_STRICTNESS = "aggressive"
+SLM_SUPPORTED_DIMS = (2048, 4096)
+LEARNING_LOG_FILE = DATA_DIR / "learning_log.jsonl"
 SLM_VERSION = "Sentiment SLM"
 SLM_ARCHITECTURE = "Hashed n-gram features → 128 → 64 → 3 (softmax)"
 RETRAIN_MIN_GOLDEN_ACC = 0.90
