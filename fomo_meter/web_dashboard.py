@@ -45,7 +45,11 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
     # ------------------------------------------------------------------ http
     def log_message(self, fmt: str, *args: Any) -> None:
-        LOGGER.info("%s - %s", self.address_string(), fmt % args)
+        # Suppress routine HTTP 200/304 access logs to keep terminal console clean
+        if args and len(args) > 1:
+            code = str(args[1])
+            if code.startswith(("4", "5")):
+                LOGGER.warning("%s - %s", self.address_string(), fmt % args)
 
     def do_OPTIONS(self) -> None:
         self.send_response(HTTPStatus.NO_CONTENT)
