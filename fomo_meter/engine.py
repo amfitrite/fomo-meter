@@ -520,10 +520,11 @@ class SentimentEngine:
             raise NoLiveDataError("Tidak ada post yang lolos gate relevansi untuk Brief Sentiment SLM.")
         posts = posts[:16]
 
-        predictions = []
-        for post in posts:
-            clean = self.relevance_gate.evaluate(post.text).sanitized_text or post.text
-            predictions.append(self.slm.predict(clean))
+        clean_texts = [
+            self.relevance_gate.evaluate(post.text).sanitized_text or post.text
+            for post in posts
+        ]
+        predictions = self.slm.predict_many(clean_texts)
 
         average = {
             label: sum(prediction.probabilities.get(label, 0.0) for prediction in predictions) / len(predictions)

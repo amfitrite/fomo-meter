@@ -686,10 +686,11 @@
       DRIP_STATE.elapsedMs += 100;
       const totalMs = SETTINGS.dripInterval * 1000;
       const pct = Math.min(100, (DRIP_STATE.elapsedMs / totalMs) * 100);
+      const scale = (pct / 100).toFixed(4);
 
       DRIP_STATE.sources.forEach((source) => {
         const bar = $(`#timerBar_${source.id}`);
-        if (bar) bar.style.width = `${pct}%`;
+        if (bar) bar.style.transform = `scaleX(${scale})`;
       });
 
       if (DRIP_STATE.elapsedMs >= totalMs) {

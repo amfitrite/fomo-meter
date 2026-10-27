@@ -493,6 +493,7 @@ button { cursor: pointer; }
   border-radius: var(--radius-sm);
   background: linear-gradient(150deg, rgba(18, 28, 39, .76), rgba(10, 16, 23, .56));
   overflow: hidden;
+  contain: content;
 }
 .source-card::before { content: ""; position: absolute; left: 15px; right: 15px; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(70, 217, 207, .2), transparent); }
 .source-card.state-error { border-color: rgba(255, 115, 115, .18); }
@@ -791,9 +792,12 @@ textarea:focus { border-color: rgba(70, 217, 207, .38); box-shadow: 0 0 0 3px rg
 }
 .feed-timer-bar {
   height: 100%;
-  width: 0%;
+  width: 100%;
   background: var(--cyan);
-  transition: width .1s linear;
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+  transition: transform .1s linear;
 }
 .feed-featured {
   padding: 9px 10px;

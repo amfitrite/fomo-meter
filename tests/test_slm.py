@@ -35,6 +35,28 @@ class SLMTests(unittest.TestCase):
         self.assertEqual(prediction.stance.value, "WAIT")
         self.assertEqual(prediction.confidence, 0.0)
 
+    def test_predict_caching(self) -> None:
+        text = "Strong rally approaching all time high"
+        first = self.model.predict(text)
+        second = self.model.predict(text)
+        self.assertEqual(first.stance, second.stance)
+        self.assertEqual(first.probabilities, second.probabilities)
+        self.assertIs(first, second)
+
+    def test_predict_many_matches_individual(self) -> None:
+        texts = [
+            "Bitcoin breakout with massive volume",
+            "Whales dumping hard, cut loss now",
+            "Sideways ahead of CPI, wait and see",
+        ]
+        batch_preds = self.model.predict_many(texts)
+        self.assertEqual(len(batch_preds), 3)
+        for text, batch_pred in zip(texts, batch_preds):
+            individual_pred = self.model.predict(text)
+            self.assertEqual(batch_pred.stance, individual_pred.stance)
+            self.assertEqual(batch_pred.intensity, individual_pred.intensity)
+            self.assertAlmostEqual(batch_pred.confidence, individual_pred.confidence, places=3)
+
 
 if __name__ == "__main__":
     unittest.main()

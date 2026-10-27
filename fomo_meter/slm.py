@@ -67,6 +67,8 @@ class SentimentSLM:
         self.feature_dim = SLM_FEATURE_DIM
         self.labels: List[str] = list(self.LABELS)
         self._params: Dict[str, np.ndarray] = {}
+        self._cache: Dict[str, SLMPrediction] = {}
+        self._cache_max_size: int = 2048
         self.load()
 
     # ------------------------------------------------------------------ load
@@ -109,6 +111,7 @@ class SentimentSLM:
                 )
             self._params = params
             self.labels = labels
+            self._cache.clear()
             self.available = True
             self.error = None
             return True
@@ -145,6 +148,9 @@ class SentimentSLM:
                 model=self.version,
             )
 
+        if text in self._cache:
+            return self._cache[text]
+
         started = time.perf_counter()
         vector = featurize(text, self.feature_dim)
         w1, b1 = self._params["W1"], self._params["b1"]
@@ -175,7 +181,7 @@ class SentimentSLM:
             for label_name, probability in zip(self.labels, probs)
         }
         latency = int((time.perf_counter() - started) * 1000)
-        return SLMPrediction(
+        prediction = SLMPrediction(
             stance=stance,
             intensity=intensity,
             confidence=round(confidence, 4),
@@ -184,5 +190,90 @@ class SentimentSLM:
             latency_ms=latency,
         )
 
+        if len(self._cache) >= self._cache_max_size:
+            keys = list(self._cache.keys())[: self._cache_max_size // 4]
+            for k in keys:
+                self._cache.pop(k, None)
+        self._cache[text] = prediction
+        return prediction
+
     def predict_many(self, texts: List[str]) -> List[SLMPrediction]:
-        return [self.predict(text) for text in texts]
+        """High-performance vectorized batch inference leveraging NumPy SIMD."""
+        if not self.available:
+            raise SLMUnavailable(self.error or "Sentiment SLM tidak tersedia.")
+        if not texts:
+            return []
+
+        results: List[Optional[SLMPrediction]] = [self._cache.get(t) for t in texts]
+        uncached_indices = [i for i, r in enumerate(results) if r is None]
+
+        if not uncached_indices:
+            return [r for r in results if r is not None]
+
+        uncached_texts = [texts[i] for i in uncached_indices]
+        started = time.perf_counter()
+        w1, b1 = self._params["W1"], self._params["b1"]
+        w2, b2 = self._params["W2"], self._params["b2"]
+        w3, b3 = self._params["W3"], self._params["b3"]
+
+        vectors = np.vstack([
+            featurize(t, self.feature_dim) if t and t.strip() else np.zeros(self.feature_dim, dtype=np.float32)
+            for t in uncached_texts
+        ])
+
+        hidden1 = np.maximum(0.0, vectors @ w1 + b1)
+        hidden2 = np.maximum(0.0, hidden1 @ w2 + b2)
+        logits = hidden2 @ w3 + b3
+
+        # Row-wise stable softmax
+        logits = logits - np.max(logits, axis=1, keepdims=True)
+        exp = np.exp(logits)
+        probs_matrix = exp / np.sum(exp, axis=1, keepdims=True)
+
+        batch_latency = int((time.perf_counter() - started) * 1000)
+        buy_idx = self.labels.index("BUY") if "BUY" in self.labels else 0
+        sell_idx = self.labels.index("SELL") if "SELL" in self.labels else 1
+
+        for orig_idx, text, probs in zip(uncached_indices, uncached_texts, probs_matrix):
+            if not text or not text.strip():
+                pred = SLMPrediction(
+                    stance=Stance.WAIT,
+                    intensity=50,
+                    confidence=0.0,
+                    probabilities={"BUY": 0.0, "SELL": 0.0, "WAIT": 1.0},
+                    model=self.version,
+                    latency_ms=0,
+                )
+            else:
+                top_idx = int(np.argmax(probs))
+                label = self.labels[top_idx]
+                stance = Stance(label) if label in Stance.__members__ else Stance.WAIT
+                confidence = float(probs[top_idx])
+
+                if stance == Stance.WAIT:
+                    intensity = 50
+                else:
+                    intensity = int(round(50 + abs(float(probs[buy_idx]) - float(probs[sell_idx])) * 50))
+                    intensity = max(51, min(99, intensity))
+
+                probability_map = {
+                    label_name: round(float(p), 4)
+                    for label_name, p in zip(self.labels, probs)
+                }
+                pred = SLMPrediction(
+                    stance=stance,
+                    intensity=intensity,
+                    confidence=round(confidence, 4),
+                    probabilities=probability_map,
+                    model=self.version,
+                    latency_ms=batch_latency,
+                )
+
+            if len(self._cache) >= self._cache_max_size:
+                keys = list(self._cache.keys())[: self._cache_max_size // 4]
+                for k in keys:
+                    self._cache.pop(k, None)
+            self._cache[text] = pred
+            results[orig_idx] = pred
+
+        return [r for r in results if r is not None]
