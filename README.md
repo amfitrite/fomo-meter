@@ -164,6 +164,17 @@ Mengadopsi paradigma **Search-Grounded Continual Learning** ala Google Gemini / 
 4. **Pencegahan Lupa Pola Lama (*Anti-Catastrophic Forgetting*)**:
    - Istilah baru diserap dari 1 sumber teratas kredibel bersama bukti kutipan dan URL aslinya (*provenance*).
    - Pelatihan ulang lokal (~20 detik di CPU) selalu menyertakan *Golden Anchor Dataset* (`data/golden_set.json`). Jika akurasi benchmark turun, sistem melakukan rollback otomatis. Bobot baru kemudian dimuat seketika (*hot-reloaded*).
+5. **Mitigasi Risiko & Proteksi Error Sistem**:
+   - **Pencegahan Rollback Deadlock**: Ambang batas akurasi benchmark dinamis ($\ge 90\%$) agar model tidak macet dan menolak belajar saat menyerap kosakata baru.
+   - **Anti File-Lock Collision (Windows OS)**: Pembaruan file bobot `sentiment_slm.npz` menggunakan *Atomic File Swap* (`tempfile` + `os.replace`) dan `threading.RLock` guna mencegah `PermissionError: [WinError 32]` saat scan live berjalan bersamaan dengan retraining.
+   - **Pencegahan Bias Pasar (*Class Imbalance*)**: Menerapkan *Stratified Replay Buffer* agar proporsi kelas `BUY`, `SELL`, dan `WAIT` tetap seimbang meski sentimen pasar sedang euforia sepihak.
+   - **Stabilitas Numerik NumPy**: *Gradient clipping* (`np.clip`) dan *L2 weight decay* untuk menjamin bobot matriks bebas dari nilai `NaN` atau *gradient explosion*.
+   - **Parser Tahan Banting**: Pembacaan stream toleran baris-per-baris pada `feedback.jsonl` agar baris yang terputus tidak menggagalkan seluruh dataset latih.
+6. **Telemetri Transparan & Status Visual (Observable AI)**:
+   - **Dynamic Badge di Topbar UI**: Status visual real-time (`● Lokal` $\rightarrow$ `🔍 Mencari web: [istilah]...` $\rightarrow$ `⚙️ Melatih bobot...` $\rightarrow$ `✨ Menyerap: [istilah] (95%)`).
+   - **Notifikasi Toast UI**: Pop-up konfirmasi saat istilah baru berhasil diserap lengkap dengan stance, skor confidence, dan URL bukti asli.
+   - **Riwayat di Panel SLM & Audit Log**: Pencatatan permanen riwayat kata baru di `data/learning_log.jsonl`.
+   - **CLI Console Stream**: Output detail transparan di terminal via tag `[SLM-DISCOVERY]`, `[SLM-LEARNER]`, dan `[SLM-HOTRELOAD]`.
 
 ## 9 gate anti-halusinasi
 
