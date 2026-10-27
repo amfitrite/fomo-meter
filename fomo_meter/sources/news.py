@@ -114,8 +114,8 @@ def parse_google_news(xml_text: str, ticker: str, max_age_hours: int = 48) -> Li
 
 class NewsSource(BaseSource):
     id = "news"
-    name = "News Wire"
-    icon = "NW"
+    name = "Google News"
+    icon = "GN"
     kind = "News"
     ttl = 300
 

@@ -126,10 +126,10 @@ SOURCE_META: List[Dict[str, Any]] = [
     },
     {
         "id": "news",
-        "name": "News Wire",
-        "icon": "NW",
+        "name": "Google News",
+        "icon": "GN",
         "kind": "News",
-        "description": "Headline finansial dari Google News RSS.",
+        "description": "Headline finansial resmi dari Google News RSS (48 jam terakhir).",
         "requires_auth": False,
     },
     {
