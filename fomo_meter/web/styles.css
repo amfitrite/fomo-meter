@@ -361,9 +361,20 @@ button { cursor: pointer; }
 .radar-cross { position: absolute; background: rgba(70, 217, 207, .12); }
 .cross-x { left: 10%; right: 10%; top: 50%; height: 1px; }
 .cross-y { top: 10%; bottom: 10%; left: 50%; width: 1px; }
-.radar-blip { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
-.blip-a { left: 36%; top: 31%; animation: blink 2.8s ease-in-out infinite; }
-.blip-b { left: 67%; top: 62%; animation: blink 2.8s .9s ease-in-out infinite; }
+.radar-blip {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 3;
+}
+.radar-blip.buy { background: var(--green); box-shadow: 0 0 12px var(--green); }
+.radar-blip.sell { background: var(--red); box-shadow: 0 0 12px var(--red); }
+.radar-blip.wait { background: var(--amber); box-shadow: 0 0 12px var(--amber); }
 .radar-node {
   position: absolute;
   display: grid;

@@ -397,6 +397,14 @@
     if (gates) gates.innerHTML = `<div class="gate-item fail"><span class="gate-icon">${icon("icon-fail")}</span><span class="gate-copy"><strong>Gate tidak dapat dijalankan</strong><span>Periksa koneksi atau log aplikasi.</span></span></div>`;
   }
 
+  const BLIP_POSITIONS = {
+    stocktwits: { left: "28%", top: "28%" },
+    news: { left: "70%", top: "30%" },
+    yahoo: { left: "50%", top: "20%" },
+    reddit: { left: "30%", top: "70%" },
+    x: { left: "68%", top: "68%" },
+  };
+
   function updateRadarNodes(sources) {
     const map = new Map((sources || []).map((source) => [source.id, source]));
     $$("[data-source]").forEach((node) => {
@@ -414,6 +422,19 @@
       else node.classList.add("no-data");
       node.title = `${source.name || node.dataset.source}: ${STATUS_TEXT[status] || status}`;
     });
+
+    const blipsContainer = $("#radarBlips");
+    if (blipsContainer) {
+      blipsContainer.innerHTML = (sources || [])
+        .filter((s) => String(s.status || "").toUpperCase() === "LIVE")
+        .map((s, idx) => {
+          const pos = BLIP_POSITIONS[s.id] || { left: "50%", top: "50%" };
+          const stance = String(s.stance || "WAIT").toLowerCase();
+          const delay = (idx * 0.4).toFixed(1);
+          return `<span class="radar-blip ${stance}" style="left:${pos.left}; top:${pos.top}; animation: blink 2.2s ${delay}s ease-in-out infinite;" title="${escapeHtml(s.name)}: ${s.stance} (${Math.round((s.confidence || 0) * 100)}%)"></span>`;
+        })
+        .join("");
+    }
   }
 
   function renderGauge(scan) {
