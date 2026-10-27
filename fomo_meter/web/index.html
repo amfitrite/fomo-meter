@@ -34,6 +34,9 @@
         <button class="icon-button" id="refreshBtn" title="Muat ulang data live" aria-label="Muat ulang data live">
           <svg><use href="/assets/sprites.svg#icon-refresh"></use></svg>
         </button>
+        <button class="icon-button" id="settingsBtn" title="Pengaturan Global (Settings)" aria-label="Pengaturan Global">
+          <svg><use href="/assets/sprites.svg#icon-gear"></use></svg>
+        </button>
         <div class="fps-meter" id="fpsMeter" title="FPS UI — mengikuti refresh rate layar (requestAnimationFrame)">
           <span class="fps-dot"></span>
           <span id="fpsValue">--</span>
@@ -276,6 +279,57 @@
       <span id="disclaimer">FOMO Meter adalah alat riset, bukan saran investasi.</span>
       <span class="footer-meta">Sentiment SLM · lokal · <span id="footerClock">—</span></span>
     </footer>
+  </div>
+
+  <div class="settings-modal-backdrop" id="settingsModal" hidden>
+    <div class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="settings-head">
+        <div class="settings-title-wrap">
+          <svg class="settings-icon"><use href="/assets/sprites.svg#icon-gear"></use></svg>
+          <h2 id="settingsTitle">Pengaturan Global</h2>
+        </div>
+        <button class="icon-button" id="closeSettingsBtn" title="Tutup" aria-label="Tutup">
+          <svg><use href="/assets/sprites.svg#icon-close"></use></svg>
+        </button>
+      </div>
+
+      <div class="settings-body">
+        <div class="settings-group">
+          <label class="settings-label">⏱️ Kecepatan Drip-Stream Komentar</label>
+          <p class="settings-hint">Interval pergantian kalimat/komentar nyata dari scraper di dalam kartu sumber.</p>
+          <div class="settings-pill-group" id="dripIntervalGroup">
+            <button type="button" class="settings-pill" data-seconds="5">5 Detik</button>
+            <button type="button" class="settings-pill" data-seconds="10">10 Detik</button>
+            <button type="button" class="settings-pill active" data-seconds="15">15 Detik (Default)</button>
+            <button type="button" class="settings-pill" data-seconds="30">30 Detik</button>
+            <button type="button" class="settings-pill" data-seconds="0">Manual / Jeda</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label class="settings-label">🛡️ Interval Scraper Jaringan (Auto-Refresh)</label>
+          <p class="settings-hint">Frekuensi penarikan data internet di background agar aman dari limit server (HTTP 429).</p>
+          <div class="settings-pill-group" id="networkIntervalGroup">
+            <button type="button" class="settings-pill" data-seconds="30">30 Detik</button>
+            <button type="button" class="settings-pill active" data-seconds="60">60 Detik (Aman)</button>
+            <button type="button" class="settings-pill" data-seconds="120">2 Menit</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label class="settings-label">⏸️ Perilaku Interaksi</label>
+          <label class="switch-row" for="hoverPauseToggle" style="margin-top:6px;">
+            <input type="checkbox" id="hoverPauseToggle" checked>
+            <span class="switch"></span>
+            <span>Jeda otomatis (*pause*) saat kursor mouse di atas kartu</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-foot">
+        <button class="primary-button wide" id="saveSettingsBtn">Simpan &amp; Terapkan</button>
+      </div>
+    </div>
   </div>
 
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>

@@ -163,6 +163,10 @@ GOOGLE_NEWS_BASE_URL = "https://news.google.com/rss/search"
 NEWS_LOCALE = {"hl": "en-US", "gl": "US", "ceid": "US:en"}
 X_PROXY_ENABLED = True
 
+# Drip Stream & Scraper Interval Configuration -------------------------------
+DRIP_STREAM_INTERVAL_SECONDS = 15
+NETWORK_REFRESH_INTERVAL_SECONDS = 60
+
 # In-house neural model (Sentiment SLM) ---------------------------------------------
 # This is not a wrapper around Ollama, OpenAI, or any hosted model. The small
 # hashed-feature neural language model is trained locally from the curated

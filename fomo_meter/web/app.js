@@ -4,7 +4,22 @@
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
-  const REFRESH_MS = 120_000;
+
+  const SETTINGS = {
+    dripInterval: Number(localStorage.getItem("fomo_drip_interval") || 15),
+    networkInterval: Number(localStorage.getItem("fomo_network_interval") || 60),
+    hoverPause: localStorage.getItem("fomo_hover_pause") !== "false",
+  };
+
+  const DRIP_STATE = {
+    elapsedMs: 0,
+    sourceIndices: {},
+    isHovered: false,
+    sources: [],
+    timer: null,
+  };
+
+  let networkTimer = null;
   const STATE = {
     ticker: "BTCUSD",
     status: null,
@@ -504,7 +519,61 @@
     if (STATE.status?.slm) renderModelStatus(STATE.status.slm);
   }
 
+  function renderFeedBox(source) {
+    const posts = source.posts || [];
+    if (!posts.length) {
+      const evidence = source.evidence
+        ? `<p class="source-evidence">“${escapeHtml(source.evidence)}”</p>`
+        : "";
+      const reason = source.reason
+        ? `<p class="source-reason">${escapeHtml(source.reason)}</p>`
+        : "";
+      return evidence + reason;
+    }
+
+    const currentIdx = DRIP_STATE.sourceIndices[source.id] || 0;
+    const activePost = posts[currentIdx % posts.length] || posts[0];
+    const postUrl = safeUrl(activePost.url || source.evidence_url || source.provenance);
+    const postStance = String(activePost.user_sentiment || source.stance || "WAIT").toLowerCase();
+
+    const otherRows = posts.map((p, i) => {
+      const pUrl = safeUrl(p.url || source.provenance);
+      const pStance = String(p.user_sentiment || "WAIT").toLowerCase();
+      return `<div class="feed-row ${i === (currentIdx % posts.length) ? 'active-row' : ''}">
+        <span class="feed-pill ${pStance}">${pStance.toUpperCase()}</span>
+        <a href="${escapeHtml(pUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.text)}</a>
+        <span class="feed-row-time">${timeAgo(p.created_at)}</span>
+      </div>`;
+    }).join("");
+
+    return `
+      <div class="source-feed-box" data-source-id="${escapeHtml(source.id)}">
+        <div class="feed-header">
+          <span class="feed-live-tag"><span class="live-dot pulse"></span> LIVE STREAM (${posts.length} post)</span>
+          <div class="feed-timer-bar-wrap" title="Rotasi otomatis tiap ${SETTINGS.dripInterval} detik">
+            <span class="feed-timer-bar" id="timerBar_${escapeHtml(source.id)}"></span>
+          </div>
+        </div>
+        <div class="feed-featured" id="featured_${escapeHtml(source.id)}">
+          <div class="feed-featured-text" id="featuredText_${escapeHtml(source.id)}">“${escapeHtml(activePost.text)}”</div>
+          <div class="feed-featured-meta">
+            <span class="feed-pill ${postStance}">${postStance.toUpperCase()}</span>
+            <span class="feed-featured-time" id="featuredTime_${escapeHtml(source.id)}">${timeAgo(activePost.created_at)}</span>
+            <a href="${escapeHtml(postUrl)}" target="_blank" rel="noopener noreferrer" id="featuredLink_${escapeHtml(source.id)}">
+              ${icon("icon-external")} bukti asli
+            </a>
+          </div>
+        </div>
+        <div class="feed-scrollable" title="Gulir untuk membaca semua kalimat hasil scraper">
+          ${otherRows}
+        </div>
+      </div>
+    `;
+  }
+
   function renderSources(sources) {
+    DRIP_STATE.sources = sources || [];
+    DRIP_STATE.elapsedMs = 0;
     const grid = $("#sourcesGrid");
     if (!grid) return;
     if (!sources.length) {
@@ -516,24 +585,15 @@
       const stance = stanceText(source.stance);
       const iconId = SOURCE_ICONS[source.id] || "icon-pulse";
       const stateClass = status === "ERROR" ? "state-error" : (status === "NEEDS_AUTH" ? "state-auth" : "");
-      const evidence = source.evidence
-        ? `<p class="source-evidence">“${escapeHtml(source.evidence)}”</p>`
-        : "";
-      const reason = source.reason
-        ? `<p class="source-reason">${escapeHtml(source.reason)}</p>`
-        : "";
+      const feedHtml = renderFeedBox(source);
       const keywords = (source.keywords || []).length
         ? `<div class="tag-row">${source.keywords.slice(0, 5).map((term) => `<span class="tag">${escapeHtml(term)}</span>`).join("")}</div>`
-        : "";
-      const url = safeUrl(source.evidence_url);
-      const link = url
-        ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${icon("icon-external")} bukti</a>`
         : "";
       const provenance = safeUrl(source.provenance);
       const provenanceLink = provenance
         ? `<a href="${escapeHtml(provenance)}" target="_blank" rel="noopener noreferrer">${icon("icon-external")} sumber</a>`
         : "";
-      return `<article class="source-card ${stateClass}">
+      return `<article class="source-card ${stateClass}" data-source-id="${escapeHtml(source.id)}">
         <div class="source-head">
           <div class="source-icon">${icon(iconId)}</div>
           <div class="source-title">
@@ -552,15 +612,91 @@
           <span><b>${formatNumber(source.bullish_count)}</b> bull</span>
           <span><b>${formatNumber(source.bearish_count)}</b> bear</span>
         </div>
-        ${evidence}
+        ${feedHtml}
         ${keywords}
-        ${reason}
         <div class="source-foot">
           <span>${source.latest_post_at ? `post ${timeAgo(source.latest_post_at)}` : "tanpa timestamp"}</span>
-          <span>${link} ${provenanceLink}</span>
+          <span>${provenanceLink}</span>
         </div>
       </article>`;
     }).join("");
+
+    $$(".source-card").forEach((card) => {
+      card.addEventListener("mouseenter", () => {
+        if (SETTINGS.hoverPause) DRIP_STATE.isHovered = true;
+      });
+      card.addEventListener("mouseleave", () => {
+        DRIP_STATE.isHovered = false;
+      });
+    });
+  }
+
+  function rotateFeaturedPosts() {
+    if (!DRIP_STATE.sources || !DRIP_STATE.sources.length) return;
+    DRIP_STATE.sources.forEach((source) => {
+      const posts = source.posts || [];
+      if (posts.length <= 1) return;
+
+      const nextIdx = ((DRIP_STATE.sourceIndices[source.id] || 0) + 1) % posts.length;
+      DRIP_STATE.sourceIndices[source.id] = nextIdx;
+      const post = posts[nextIdx];
+      if (!post) return;
+
+      const textEl = $(`#featuredText_${source.id}`);
+      const timeEl = $(`#featuredTime_${source.id}`);
+      const linkEl = $(`#featuredLink_${source.id}`);
+      const featuredBox = $(`#featured_${source.id}`);
+      const postUrl = safeUrl(post.url || source.evidence_url || source.provenance);
+      const postStance = String(post.user_sentiment || source.stance || "WAIT").toLowerCase();
+
+      if (textEl) textEl.textContent = `“${post.text}”`;
+      if (timeEl) timeEl.textContent = timeAgo(post.created_at);
+      if (linkEl) linkEl.href = postUrl;
+
+      if (featuredBox) {
+        const pill = featuredBox.querySelector(".feed-pill");
+        if (pill) {
+          pill.className = `feed-pill ${postStance}`;
+          pill.textContent = postStance.toUpperCase();
+        }
+        featuredBox.classList.remove("pulse");
+        void featuredBox.offsetWidth;
+        featuredBox.classList.add("pulse");
+      }
+
+      const card = $(`article[data-source-id="${source.id}"]`);
+      if (card) {
+        const rows = card.querySelectorAll(".feed-row");
+        rows.forEach((row, i) => {
+          row.classList.toggle("active-row", i === nextIdx);
+        });
+      }
+    });
+  }
+
+  function initDripEngine() {
+    if (DRIP_STATE.timer) clearInterval(DRIP_STATE.timer);
+    DRIP_STATE.elapsedMs = 0;
+    if (SETTINGS.dripInterval <= 0) return;
+
+    DRIP_STATE.timer = setInterval(() => {
+      if (DRIP_STATE.isHovered && SETTINGS.hoverPause) return;
+      if (document.hidden) return;
+
+      DRIP_STATE.elapsedMs += 100;
+      const totalMs = SETTINGS.dripInterval * 1000;
+      const pct = Math.min(100, (DRIP_STATE.elapsedMs / totalMs) * 100);
+
+      DRIP_STATE.sources.forEach((source) => {
+        const bar = $(`#timerBar_${source.id}`);
+        if (bar) bar.style.width = `${pct}%`;
+      });
+
+      if (DRIP_STATE.elapsedMs >= totalMs) {
+        DRIP_STATE.elapsedMs = 0;
+        rotateFeaturedPosts();
+      }
+    }, 100);
   }
 
   function renderGates(gates) {
@@ -907,6 +1043,82 @@
     }
   }
 
+  function restartNetworkPolling() {
+    if (networkTimer) clearInterval(networkTimer);
+    if (SETTINGS.networkInterval > 0) {
+      networkTimer = setInterval(() => {
+        if (!document.hidden) loadScan(false);
+      }, SETTINGS.networkInterval * 1000);
+    }
+  }
+
+  function setupSettingsModal() {
+    const modal = $("#settingsModal");
+    const openBtn = $("#settingsBtn");
+    const closeBtn = $("#closeSettingsBtn");
+    const saveBtn = $("#saveSettingsBtn");
+    const hoverToggle = $("#hoverPauseToggle");
+
+    if (!modal || !openBtn) return;
+
+    function openModal() {
+      $$("#dripIntervalGroup .settings-pill").forEach((pill) => {
+        pill.classList.toggle("active", Number(pill.dataset.seconds) === SETTINGS.dripInterval);
+      });
+      $$("#networkIntervalGroup .settings-pill").forEach((pill) => {
+        pill.classList.toggle("active", Number(pill.dataset.seconds) === SETTINGS.networkInterval);
+      });
+      if (hoverToggle) hoverToggle.checked = SETTINGS.hoverPause;
+      modal.hidden = false;
+    }
+
+    function closeModal() {
+      modal.hidden = true;
+    }
+
+    openBtn.addEventListener("click", openModal);
+    closeBtn?.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    $$("#dripIntervalGroup .settings-pill").forEach((pill) => {
+      pill.addEventListener("click", () => {
+        $$("#dripIntervalGroup .settings-pill").forEach((p) => p.classList.remove("active"));
+        pill.classList.add("active");
+      });
+    });
+
+    $$("#networkIntervalGroup .settings-pill").forEach((pill) => {
+      pill.addEventListener("click", () => {
+        $$("#networkIntervalGroup .settings-pill").forEach((p) => p.classList.remove("active"));
+        pill.classList.add("active");
+      });
+    });
+
+    saveBtn?.addEventListener("click", () => {
+      const activeDrip = $("#dripIntervalGroup .settings-pill.active");
+      const activeNet = $("#networkIntervalGroup .settings-pill.active");
+      if (activeDrip) {
+        SETTINGS.dripInterval = Number(activeDrip.dataset.seconds);
+        localStorage.setItem("fomo_drip_interval", SETTINGS.dripInterval);
+      }
+      if (activeNet) {
+        SETTINGS.networkInterval = Number(activeNet.dataset.seconds);
+        localStorage.setItem("fomo_network_interval", SETTINGS.networkInterval);
+      }
+      if (hoverToggle) {
+        SETTINGS.hoverPause = hoverToggle.checked;
+        localStorage.setItem("fomo_hover_pause", SETTINGS.hoverPause);
+      }
+
+      initDripEngine();
+      restartNetworkPolling();
+      closeModal();
+      showToast(`Pengaturan disimpan: Drip ${SETTINGS.dripInterval}s, Jaringan ${SETTINGS.networkInterval}s`, "success");
+    });
+  }
+
   function bindEvents() {
     $("#refreshBtn")?.addEventListener("click", () => loadScan(true));
     $("#briefBtn")?.addEventListener("click", requestBrief);
@@ -921,9 +1133,7 @@
         analyzeText();
       }
     });
-    window.setInterval(() => {
-      if (!document.hidden) loadScan(false);
-    }, REFRESH_MS);
+    restartNetworkPolling();
     window.setInterval(() => {
       const clock = $("#footerClock");
       if (clock) clock.textContent = new Date().toLocaleTimeString("id-ID");
@@ -934,8 +1144,10 @@
 
   async function init() {
     bindEvents();
+    setupSettingsModal();
     setupDesktopShell();
     startFpsMonitor();
+    initDripEngine();
     await loadStatus();
     await Promise.allSettled([loadScan(false), loadHistory()]);
   }

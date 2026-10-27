@@ -188,5 +188,35 @@
     "text": "Sentiment SLM menganalisis 16 post live dari 5 sumber. Distribusi model: 10 BUY, 6 SELL, 0 WAIT. Probabilitas rata-rata: BUY 57%, SELL 42%, WAIT 1%. Driver lexicon: short, hold, bearish, watch, correction. Radar menandai konflik antar-sumber; brief ini tidak mengubahnya menjadi r",
     "engine": "sentiment_slm",
     "model": "Sentiment SLM"
+  },
+  {
+    "timestamp": 1793110327.497777,
+    "kind": "text",
+    "ticker": null,
+    "stance": "WAIT",
+    "intensity": 50,
+    "text": "gamma exposure XAUUSD",
+    "engine": "sentiment_slm",
+    "model": "Sentiment SLM"
+  },
+  {
+    "timestamp": 1793111409.6180685,
+    "kind": "brief",
+    "ticker": "XAUUSD",
+    "stance": "BUY",
+    "intensity": 58,
+    "text": "Sentiment SLM menganalisis 16 post live dari 5 sumber. Distribusi model: 10 BUY, 6 SELL, 0 WAIT. Probabilitas rata-rata: BUY 57%, SELL 42%, WAIT 1%. Driver lexicon: short, hold, bearish, watch, correction. Radar menandai konflik antar-sumber; brief ini tidak mengubahnya menjadi r",
+    "engine": "sentiment_slm",
+    "model": "Sentiment SLM"
+  },
+  {
+    "timestamp": 1793111432.4698725,
+    "kind": "brief",
+    "ticker": "XAUUSD",
+    "stance": "BUY",
+    "intensity": 58,
+    "text": "Sentiment SLM menganalisis 16 post live dari 5 sumber. Distribusi model: 10 BUY, 6 SELL, 0 WAIT. Probabilitas rata-rata: BUY 57%, SELL 42%, WAIT 1%. Driver lexicon: short, hold, bearish, watch, correction. Radar menandai konflik antar-sumber; brief ini tidak mengubahnya menjadi r",
+    "engine": "sentiment_slm",
+    "model": "Sentiment SLM"
   }
 ]

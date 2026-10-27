@@ -19,12 +19,12 @@
   "train_samples": 886,
   "val_samples": 157,
   "best_epoch": 11,
-  "trained_at": "2026-10-27T13:21:08.775177+00:00",
+  "trained_at": "2026-10-27T14:15:14.901946+00:00",
   "label_counts": {
     "WAIT": 286,
     "SELL": 372,
     "BUY": 385
   },
-  "training_seconds": 209.89,
+  "training_seconds": 177.79,
   "notes": "Auto-learned with 1 user feedback examples. Safe rollback guard passed."
 }
