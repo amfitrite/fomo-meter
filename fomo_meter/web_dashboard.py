@@ -225,13 +225,16 @@ class DashboardHandler(BaseHTTPRequestHandler):
             mime = "application/json; charset=utf-8"
 
         data = target.read_bytes()
-        self.send_response(HTTPStatus.OK)
-        self.send_header("Content-Type", mime)
-        self.send_header("Content-Length", str(len(data)))
-        self.send_header("Cache-Control", "no-cache")
-        self._common_headers()
-        self.end_headers()
-        self.wfile.write(data)
+        try:
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", mime)
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "no-cache")
+            self._common_headers()
+            self.end_headers()
+            self.wfile.write(data)
+        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
+            pass
 
     # ----------------------------------------------------------------- output
     def _common_headers(self) -> None:
@@ -243,14 +246,27 @@ class DashboardHandler(BaseHTTPRequestHandler):
         ))
 
     def _send_json(self, payload: Dict[str, Any], status: HTTPStatus = HTTPStatus.OK) -> None:
-        data = json.dumps(payload, ensure_ascii=False, allow_nan=False).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(data)))
-        self.send_header("Cache-Control", "no-store")
-        self._common_headers()
-        self.end_headers()
-        self.wfile.write(data)
+        try:
+            data = json.dumps(payload, ensure_ascii=False, allow_nan=False).encode("utf-8")
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "no-store")
+            self._common_headers()
+            self.end_headers()
+            self.wfile.write(data)
+        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
+            pass
+
+
+class SilentThreadingHTTPServer(ThreadingHTTPServer):
+    daemon_threads = True
+
+    def handle_error(self, request: Any, client_address: Any) -> None:
+        exc_type, _, _ = sys.exc_info()
+        if exc_type in (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
+            return
+        super().handle_error(request, client_address)
 
 
 class DashboardServer:
@@ -259,7 +275,7 @@ class DashboardServer:
         self.host = host
         self.port = port
         self.engine = SentimentEngine()
-        self._server: Optional[ThreadingHTTPServer] = None
+        self._server: Optional[SilentThreadingHTTPServer] = None
         self._thread: Optional[threading.Thread] = None
 
     def start(self) -> str:
@@ -268,7 +284,7 @@ class DashboardServer:
             "web_dir": WEB_DIR,
             "assets_dir": ASSETS_DIR,
         })
-        self._server = ThreadingHTTPServer((self.host, self.port), handler)
+        self._server = SilentThreadingHTTPServer((self.host, self.port), handler)
         self._server.daemon_threads = True
         self.port = int(self._server.server_address[1])
         self._thread = threading.Thread(
