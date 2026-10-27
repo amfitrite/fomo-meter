@@ -208,6 +208,14 @@ def main() -> int:
     args = parser.parse_args()
     if not getattr(args, "command", None):
         args = parser.parse_args(["gui"])
+    if getattr(args, "command", None) == "gui" and sys.platform == "win32":
+        try:
+            import ctypes
+            hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+            if hwnd:
+                ctypes.windll.user32.ShowWindow(hwnd, 0)
+        except Exception:
+            pass
     return int(args.func(args))
 
 

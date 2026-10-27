@@ -224,8 +224,17 @@ class MainWindow(QMainWindow):
 
 
 def run_desktop() -> int:
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+            if hwnd:
+                ctypes.windll.user32.ShowWindow(hwnd, 0)  # 0 = SW_HIDE
+        except Exception:
+            pass
+
     ensure_dirs()
-    configure_logging()
+    configure_logging(gui_mode=True)
     try:
         import ctypes
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(f"FOMOMeter.App.{APP_VERSION}")

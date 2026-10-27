@@ -307,7 +307,7 @@ class DashboardServer:
             self.stop()
 
 
-def configure_logging() -> None:
+def configure_logging(gui_mode: bool = False) -> None:
     ensure_dirs()
     if LOGGER.handlers:
         return
@@ -315,10 +315,11 @@ def configure_logging() -> None:
     formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
     file_handler = logging.FileHandler(LOG_DIR / "app.log", encoding="utf-8")
     file_handler.setFormatter(formatter)
-    console = logging.StreamHandler()
-    console.setFormatter(formatter)
     LOGGER.addHandler(file_handler)
-    LOGGER.addHandler(console)
+    if not gui_mode:
+        console = logging.StreamHandler()
+        console.setFormatter(formatter)
+        LOGGER.addHandler(console)
 
 
 def run_server(host: str = HOST, port: int = 0) -> None:
