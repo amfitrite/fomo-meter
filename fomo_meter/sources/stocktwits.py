@@ -12,6 +12,13 @@ from fomo_meter.schema import Post, SourceResult, SourceStatus, Stance
 from fomo_meter.sources.analysis import aggregate_posts
 from fomo_meter.sources.base import BaseSource, SourceFetchError
 
+try:
+    from curl_cffi import requests as c_requests
+    HAS_CURL_CFFI = True
+except ImportError:  # pragma: no cover
+    c_requests = None
+    HAS_CURL_CFFI = False
+
 
 def _parse_created_at(value: Optional[str]) -> float:
     if not value:
@@ -84,6 +91,38 @@ class StockTwitsSource(BaseSource):
     kind = "Crowd"
     ttl = 90
 
+    def __init__(self, classifier=None, relevance_gate=None) -> None:
+        super().__init__(classifier=classifier, relevance_gate=relevance_gate)
+        self._cffi_session = None
+
+    def _get_cffi_session(self):
+        if not HAS_CURL_CFFI or c_requests is None:
+            return None
+        if self._cffi_session is None:
+            try:
+                self._cffi_session = c_requests.Session(impersonate="chrome120")
+            except Exception:
+                self._cffi_session = None
+        return self._cffi_session
+
+    def close(self) -> None:
+        super().close()
+        if self._cffi_session is not None:
+            try:
+                self._cffi_session.close()
+            except Exception:
+                pass
+            self._cffi_session = None
+
+    def _fetch_response(self, url: str):
+        c_sess = self._get_cffi_session()
+        if c_sess is not None:
+            try:
+                return c_sess.get(url, timeout=REQUEST_TIMEOUT)
+            except Exception:
+                pass
+        return self.session.get(url, timeout=REQUEST_TIMEOUT)
+
     def _fetch(self, ticker: str) -> SourceResult:
         config = TICKERS.get(ticker.upper())
         if not config:
@@ -91,7 +130,7 @@ class StockTwitsSource(BaseSource):
         symbol = config["stocktwits"]
         url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json"
 
-        response = self.session.get(url, timeout=REQUEST_TIMEOUT)
+        response = self._fetch_response(url)
         if response.status_code == 429:
             raise SourceFetchError(
                 "StockTwits membatasi permintaan (HTTP 429). Coba lagi beberapa saat.",

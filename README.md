@@ -17,7 +17,7 @@ Aplikasi ini menggabungkan sumber publik nyata, gate anti-halusinasi, classifier
 | FPS meter UI real-time | Selesai |
 | Dashboard lokal 127.0.0.1 | Selesai |
 | Sumber live Google News + Yahoo Finance | Selesai dan teruji |
-| StockTwits publik | Live, tetapi dapat diblokir Cloudflare (HTTP 403) secara intermiten |
+| StockTwits publik | Selesai dan live (Cloudflare bypassed via TLS impersonation) |
 | Reddit publik | Live via Community Wire (fallback otomatis saat direct API 403) |
 | X / Twitter | Live via X Proxy Wire (Google News) atau X API Bearer Token |
 | Sentiment SLM neural model | Selesai, bobot lokal tersedia |
