@@ -202,25 +202,44 @@ class SentimentEngine:
         if live:
             buy_weight = sum(_safe_weight(item) for item in directional if item.stance == Stance.BUY)
             sell_weight = sum(_safe_weight(item) for item in directional if item.stance == Stance.SELL)
+            total_directional = buy_weight + sell_weight
+
+            # Check for conflict, allowing a 20% tolerance for the minority stance
+            is_conflict = False
             if buy_weight > 0 and sell_weight > 0:
+                minority_weight = min(buy_weight, sell_weight)
+                if minority_weight / total_directional > 0.20:
+                    is_conflict = True
+
+            if is_conflict:
                 conflict = True
                 consensus = "CONFLICT"
                 intensity = 50
-                total_directional = buy_weight + sell_weight
                 confidence = 0.35 + 0.25 * min(1.0, analyzed_posts / 12.0)
                 confidence -= 0.10 * min(1.0, min(buy_weight, sell_weight) / max(buy_weight, sell_weight))
             elif buy_weight > 0 or sell_weight > 0:
-                stance = Stance.BUY if buy_weight > 0 else Stance.SELL
+                stance = Stance.BUY if buy_weight > sell_weight else Stance.SELL
                 consensus = stance.value
                 directional_sources = [item for item in directional if item.stance == stance]
-                weights = [_safe_weight(item) for item in directional_sources]
+                # Include the minority weight in calculations to accurately reflect the intensity
+                all_directional_sources = [item for item in directional if item.stance in (Stance.BUY, Stance.SELL)]
+
+                weights = [_safe_weight(item) for item in all_directional_sources]
                 weight_sum = sum(weights) or 1.0
-                intensity = int(round(
-                    sum(item.intensity * _safe_weight(item) for item in directional_sources) / weight_sum
-                ))
+
+                # Calculate weighted intensity across all directional sources to allow minority to reduce intensity
+                raw_intensity = sum(
+                    (item.intensity if item.stance == stance else (100 - item.intensity)) * _safe_weight(item)
+                    for item in all_directional_sources
+                ) / weight_sum
+
+                intensity = int(round(raw_intensity))
                 intensity = max(51, min(99, intensity))
+
                 confidence = 0.38 + (0.37 * min(1.0, analyzed_posts / 10.0))
                 confidence += 0.10 * min(1.0, len(directional_sources) / 3.0)
+                if buy_weight > 0 and sell_weight > 0:
+                     confidence -= 0.05 # Slight penalty for having opposing views even if not a full conflict
             else:
                 consensus = "WAIT"
                 intensity = 50
